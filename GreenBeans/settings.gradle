@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "GreenBeans"
+rootProject.name = "GreenBean 1.0"

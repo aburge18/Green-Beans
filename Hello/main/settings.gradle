@@ -1,2 +1,0 @@
-include ':app'
-rootProject.name = "GreenBean 1.0"

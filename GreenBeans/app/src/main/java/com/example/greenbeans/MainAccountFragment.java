@@ -323,7 +323,7 @@ public class MainAccountFragment extends Fragment {
             ArrayList<Double> avgs = new ArrayList<Double>();//temp list to send to postExecute
 
 
-            final Request request = new Request.Builder().url("https://api.tdameritrade.com/v1/accounts/236970209?fields=positions").addHeader("Authorization", authCode).build();
+            final Request request = new Request.Builder().url("https://api.tdameritrade.com/v1/accounts?fields=positions").addHeader("Authorization", authCode).build();
 
 
             FirebaseFirestore db = FirebaseFirestore.getInstance();

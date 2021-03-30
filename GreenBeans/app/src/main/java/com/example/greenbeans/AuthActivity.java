@@ -5,13 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 
-public class AuthActivity extends AppCompatActivity implements LoginFragment.IListener{
+import com.google.firebase.auth.FirebaseAuth;
+
+public class AuthActivity extends AppCompatActivity implements LoginFragment.IListener, CreateAccountFragment.IListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportFragmentManager().beginTransaction().add(R.id.mainLayout, new LoginFragment(), "Login").commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.mainLayout, new MainAccountFragment(), "Login").commit();
 
     }
 

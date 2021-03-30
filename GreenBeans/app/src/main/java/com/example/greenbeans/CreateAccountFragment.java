@@ -82,6 +82,8 @@ public class CreateAccountFragment extends Fragment {
         rgstrSubmitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mAuth = FirebaseAuth.getInstance();
+
                 String firstNameTxt, lastNameTxt, emailTxt, emailConfirmTxt, passTxt, passConfirmTxt;
 
                 firstNameETV = view.findViewById(R.id.firstname1);
@@ -104,10 +106,10 @@ public class CreateAccountFragment extends Fragment {
 
 
 
-                if(emailTxt != emailConfirmTxt){
+                if(!emailTxt.matches(emailConfirmTxt)){
                     Toast toast1 = Toast.makeText(getActivity().getApplicationContext(), "Emails Do Not Match", Toast.LENGTH_SHORT);
                     toast1.show();
-                }else if (passTxt != passConfirmTxt){
+                }else if (!passTxt.matches(passConfirmTxt)){
                     Toast toast1 = Toast.makeText(getActivity().getApplicationContext(), "Passwords Do Not Match", Toast.LENGTH_SHORT);
                     toast1.show();
                 }else if (firstNameTxt.matches("") || lastNameTxt.matches("")){

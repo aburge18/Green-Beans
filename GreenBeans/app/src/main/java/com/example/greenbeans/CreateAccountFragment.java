@@ -129,6 +129,7 @@ public class CreateAccountFragment extends Fragment {
                             if (task.isSuccessful()) {
                                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                                 Map<String, Object> docData = new HashMap<>();//initialize new user in collection on firebase
+                                Manager manager = new Manager(firstNameTxt, lastNameTxt, mAuth.getUid(), emailTxt);
                                 docData.put("fName", firstNameTxt);
                                 docData.put("lName", lastNameTxt);
                                 docData.put("accountID", mAuth.getUid());
@@ -137,7 +138,11 @@ public class CreateAccountFragment extends Fragment {
                                 docData.put("likedAlbums", temp);
                                 docData.put("trackHistory", temp);
                                 db.collection("albumUsers").document(emailTxt.toLowerCase()).set(docData);
-                                mListener.setUsername(mAuth.getCurrentUser().getEmail());
+
+                                db.collection("managers").document(mAuth.getUid()).set(manager);
+                                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new LoginFragment(), "Login").addToBackStack(null).commit();
+
+
                             } else {
                             }
                         }

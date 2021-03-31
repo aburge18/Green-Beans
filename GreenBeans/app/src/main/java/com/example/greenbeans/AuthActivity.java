@@ -13,14 +13,14 @@ public class AuthActivity extends AppCompatActivity implements LoginFragment.ILi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportFragmentManager().beginTransaction().add(R.id.mainLayout, new MainAccountFragment(), "Login").commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.mainLayout, new LoginFragment(), "Login").commit();
 
     }
-
+FirebaseAuth mAuth = FirebaseAuth.getInstance();
     @Override
-    public void setUsername(String username) {
+    public void setUsername(String userID) {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("user", username);
+        intent.putExtra("user", userID);
         startActivity(intent);
     }
 }

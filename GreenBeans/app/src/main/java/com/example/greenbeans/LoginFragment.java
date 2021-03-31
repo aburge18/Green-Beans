@@ -89,6 +89,7 @@ public class LoginFragment extends Fragment {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mListener.setUsername("ixSWAY3Eh6X9siANDrDT4rOIiMF2");
                 String email = emailETV.getText().toString();
                 String passwd = passETV.getText().toString();
 
@@ -105,7 +106,7 @@ public class LoginFragment extends Fragment {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()){//if authorized then proceed
-                                mListener.setUsername(mAuth.getCurrentUser().getEmail());//funtion to login with provided email
+                                mListener.setUsername(mAuth.getCurrentUser().getUid());//funtion to login with provided email
                             }else{//else provide error message
                                 Toast toast1 = Toast.makeText(getActivity().getApplicationContext(), "Invalid Email and Password", Toast.LENGTH_SHORT);
                                 toast1.show();

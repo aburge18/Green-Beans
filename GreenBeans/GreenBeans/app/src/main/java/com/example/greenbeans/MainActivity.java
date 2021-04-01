@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-public class MainActivity extends AppCompatActivity implements ManagerMainFragment.IListener, ManagerMainViewAdapter.IListener, ClientPortfolioFragment.IListener, AccountPositionsFragment.IListener, ClientPortfolioViewAdapter.IListener{
+public class MainActivity extends AppCompatActivity implements ManagerMainFragment.IListener, ManagerMainViewAdapter.IListener, ClientPortfolioFragment.IListener, AccountPositionsFragment.IListener, AccountPositionsViewAdapter.IListener, ClientPortfolioViewAdapter.IListener{
     private FirebaseAuth mAuth;
     String userID;
 
@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity implements ManagerMainFragme
             mAuth = (FirebaseAuth) getIntent().getSerializableExtra("mAuth");
             userID = getIntent().getStringExtra("user");
         }
-        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ManagerMainFragment(), "Main").commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ManagerMainFragment(), "Main").addToBackStack(null).commit();
     }
     public String getUserID(){
         return userID;
@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements ManagerMainFragme
 
     public void setCurrentClient(Client client){
         this.currentClient = client;
-        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ClientPortfolioFragment(), "ClientPortfolio").commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ClientPortfolioFragment(), "ClientPortfolio").addToBackStack(null).commit();
     }
     public Client getCurrentClient(){
         return currentClient;
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements ManagerMainFragme
     public void setCurrentAccount(Account account) {
 
         this.currentAccount = account;
-        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new AccountPositionsFragment(), "AccountPositions").commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new AccountPositionsFragment(), "AccountPositions").addToBackStack(null).commit();
     }
 
     public Account getCurrentAccount(){

@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -98,6 +99,7 @@ public class ManagerMainFragment extends Fragment {
 
         recView = view.findViewById(R.id.recView);
         managerID = mListener.getUserID();
+
 
         new getClientsAccounts().execute();
 

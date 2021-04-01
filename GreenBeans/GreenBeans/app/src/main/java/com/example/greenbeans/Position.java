@@ -2,13 +2,14 @@ package com.example.greenbeans;
 
 public class Position {
 
-    String symbol, quantity;
+    String symbol, quantity, buyPrice;
     int quantityInt;
-    double buyPrice, currentPrice, dayProfitLoss;
+    double buyPriceNum, currentPrice, dayProfitLoss;
 
-    public Position(String symbol, String quantity){
+    public Position(String symbol, String quantity, String buyPrice){
         this.symbol = symbol;
         this.quantity = quantity;
+        this.buyPrice = buyPrice;
     }
     public Position(){}
 

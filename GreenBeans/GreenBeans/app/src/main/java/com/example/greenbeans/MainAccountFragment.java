@@ -101,35 +101,11 @@ public class MainAccountFragment extends Fragment {
         
         
         
-        //used this section to automate the process from the moment the app is run but its recommended the user has some 
-        // input before authentication and then use refresh tokens to automate future uses
-        
-      /*  
-        String js = "javascript:document.getElementById('username0').value='" + username + "'; " + //enter username
-                               "document.getElementById('password1').value='" + password + "'; " + //enter password
-                               "document.getElementById('accept').disabled=false;" +               //enable submit button
-                               "document.getElementById('accept').click(); " ;                     //click submit button
-        String js2;
-         
-        String[] secQuestions = {"What is your mother"};
-        String[] secAnswers = {"Ann"};
-        String js4 = "javascript:document.getElementById('accept').disabled=false; document.getElementById('accept').click();";
-        HashMap<String, String> data = new HashMap<String, String>();
-        String js3 ="javascript:var question = document.querySelectorAll('p')[2].innerHTML;" +
-                "if(question.includes('"+ secQuestions[0] + "')){ document.getElementById('secretquestion0').value='Ann'; }" +
-                "document.getElementById('accept').disabled=false; document.getElementById('accept').click(); document.getElementById('accept').click();";*/
 
 
 
 
         if(trustedDevice) {
-
-
-
-
-
-
-
 
 
             String url = "https://auth.tdameritrade.com/auth?response_type=code&redirect_uri=http://localhost&client_id=HJ8DN850FB0BCX4ZCYCZK85SDKLKPLX7@AMER.OAUTHAP";//url user must go to to authenticate and get token

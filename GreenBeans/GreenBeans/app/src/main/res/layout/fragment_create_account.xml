@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/pageColor"
 
-    tools:context=".CreateAccountFragment">
+    tools:context=".authentication.CreateAccountFragment">
 
     <view
         android:id="@+id/logobar"

@@ -25,14 +25,17 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
     public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.clients_row_item, parent, false);
         ProfileViewHolder profileViewHolder = new ProfileViewHolder(view);
+
         return profileViewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ProfileViewHolder holder, int position) {
+        Client client = clients.get(position);
         System.out.println("Trying " + clients.get(0).accounts.get(0).refreshToken + " _ " + clients.size() + " _ " + clients.get(0).accounts.size());
-        holder.name.setText(clients.get(position).name);
-        holder.name.setOnClickListener(new View.OnClickListener() {
+        holder.name.setText(client.name);
+        holder.email.setText(client.email);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             mListener.setCurrentClient(clients.get(position));
@@ -53,12 +56,12 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
 
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         TextView name;
-        TextView phone;
+        TextView email;
         Button delete;
         public ProfileViewHolder(@NonNull View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.symbolTV);
-
+            name = itemView.findViewById(R.id.clientNameTV);
+            email = itemView.findViewById(R.id.clientEmailTV);
         }
     }
     public interface IListener{

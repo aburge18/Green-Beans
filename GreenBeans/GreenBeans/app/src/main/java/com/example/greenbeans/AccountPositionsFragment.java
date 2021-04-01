@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +39,10 @@ public class AccountPositionsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    RecyclerView recyclerView;
+
+    AccountPositionsViewAdapter adapter;
+    LinearLayoutManager layoutManager;
 ArrayList<Position> positions = new ArrayList<>();
     Account currentAccount;
     String authCode;
@@ -77,10 +83,17 @@ ArrayList<Position> positions = new ArrayList<>();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_account_positions, container, false);
 
+        adapter = new AccountPositionsViewAdapter(positions, getContext());
+        recyclerView = view.findViewById(R.id.positionRecView);
+        layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
         currentAccount = mListener.getCurrentAccount();
         System.out.println("ALmost done: " + currentAccount.refreshToken);
         authCode = currentAccount.authCode;
         new Positions().execute();
+
+
         return view;
     }
 
@@ -113,7 +126,7 @@ String symbol;
                     symbol = instrumentObj.getString("symbol");
                     System.out.println("Symbol: " + symbol);
 
-                    tempPosition = new Position(symbol, positionObj.getString("longQuantity"));
+                    tempPosition = new Position(symbol, positionObj.getString("longQuantity"), positionObj.getString("averagePrice"));
 //positions.add(tempPosition);
 
 
@@ -147,7 +160,7 @@ String symbol;
             super.onPostExecute(tempPosition);
             System.out.println("ADDed: " + tempPosition.symbol);
 positions.add(tempPosition);
-
+            adapter.notifyDataSetChanged();
         }
 
         @Override

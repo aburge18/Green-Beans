@@ -31,8 +31,15 @@ public class ClientPortfolioViewAdapter extends RecyclerView.Adapter<ClientPortf
     @Override
     public void onBindViewHolder(@NonNull ProfileViewHolder holder, int position) {
         Account account = accounts.get(position);
-        holder.accountType.setText(accounts.get(position).accountType);
-        holder.accountType.setOnClickListener(new View.OnClickListener() {
+        String accountType = "";
+        switch (account.accountType){
+            case "TD":
+                accountType = "TD Ameritrade";
+                break;
+
+        }
+        holder.accountType.setText(accountType);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 System.out.println("NULL: " + account.refreshToken);

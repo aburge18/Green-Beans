@@ -1,9 +1,9 @@
 package com.example.greenbeans;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -16,7 +16,7 @@ public class AuthActivity extends AppCompatActivity implements LoginFragment.ILi
         getSupportFragmentManager().beginTransaction().add(R.id.mainLayout, new LoginFragment(), "Login").commit();
 
     }
-FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
     @Override
     public void setUsername(String userID) {
         Intent intent = new Intent(this, MainActivity.class);

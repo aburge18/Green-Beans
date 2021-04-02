@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -92,7 +93,13 @@ ArrayList<Position> positions = new ArrayList<>();
         System.out.println("ALmost done: " + currentAccount.refreshToken);
         authCode = currentAccount.authCode;
         new Positions().execute();
-
+        Button addPositionsBtn = view.findViewById(R.id.addPositionBtn);
+        addPositionsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.setPositionToBuy();
+            }
+        });
 
         return view;
     }
@@ -185,5 +192,6 @@ positions.add(tempPosition);
 
     public interface IListener{
       Account getCurrentAccount();
+      void setPositionToBuy();
     }
 }

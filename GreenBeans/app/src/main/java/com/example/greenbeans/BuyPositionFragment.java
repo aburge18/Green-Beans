@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
@@ -90,10 +91,25 @@ TextView buyPriceTV;
         TextView buyAmountTV = view.findViewById(R.id.buyAmountTV);
         TextView buyPositionTV = view.findViewById(R.id.buyPositionTV);
 
+        EditText searchETV = view.findViewById(R.id.buySearchETV);
         TextView buyTotalTV = view.findViewById(R.id.buyTotalTV);
 buyPriceTV = view.findViewById(R.id.buyPriceTV);
         positionSymbol = mListener.getPositionToBuy();
+        if(!positionSymbol.matches("")){
+            new Positions().execute();
+        }
 
+        searchETV.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!searchETV.getText().toString().matches("")) {
+                    positionSymbol = searchETV.getText().toString();
+                    buySymobolTV.setText(positionSymbol);
+                    buyPositionTV.setText(positionSymbol);
+                    new Positions().execute();
+                }
+            }
+        });
         Button buyPositionButton = view.findViewById(R.id.buyPositionBtn);
 
         buyPositionButton.setOnClickListener(new View.OnClickListener() {
@@ -108,7 +124,7 @@ buySymobolTV.setText(positionSymbol);
 quatityETV.setText("0");
 buyPositionTV.setText(positionSymbol);
 buyAmountTV.setText("0");
-new Positions().execute();
+
 
 quatityETV.addTextChangedListener(new TextWatcher() {
             @Override
@@ -126,11 +142,12 @@ quatityETV.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 if (!quatityETV.getText().toString().matches("")) {
+
+                    DecimalFormat df = new DecimalFormat("0.00");
                     quantity = Double.valueOf(quatityETV.getText().toString());
                     buyAmountTV.setText(quantity.toString());
                     Double total = quantity * priceVal;
-                    String.format("%.2f", total);
-                    buyTotalTV.setText(total.toString());
+                    buyTotalTV.setText(df.format(total));
                 }
             }
         });

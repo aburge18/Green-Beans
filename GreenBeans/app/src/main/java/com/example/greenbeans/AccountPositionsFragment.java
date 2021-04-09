@@ -12,6 +12,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -83,14 +84,17 @@ ArrayList<Position> positions = new ArrayList<>();
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_account_positions, container, false);
-
+positions = new ArrayList<>();
         adapter = new AccountPositionsViewAdapter(positions, getContext());
         recyclerView = view.findViewById(R.id.positionRecView);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
+
         recyclerView.setAdapter(adapter);
+
         currentAccount = mListener.getCurrentAccount();
-        System.out.println("ALmost done: " + currentAccount.refreshToken);
+        //System.out.println("ALmost done: " + positions.get(1).symbol);
         authCode = currentAccount.authCode;
         new Positions().execute();
         Button addPositionsBtn = view.findViewById(R.id.addPositionBtn);
@@ -124,23 +128,27 @@ String symbol;
                     response1Body = response1.body().string();
                     System.out.println("Response 2: " + response1Body);
                     JSONArray responseArray = new JSONArray(response1Body);
-                    Position tempPosition;
+                    Position tempPosition = null;
                     JSONObject responseObj = responseArray.getJSONObject(0);
                     JSONObject securitiesAccountObj =  responseObj.getJSONObject("securitiesAccount");
                     JSONArray positionsArr = securitiesAccountObj.getJSONArray("positions");
-                    JSONObject positionObj = positionsArr.getJSONObject(0);
-                    JSONObject instrumentObj= positionObj.getJSONObject("instrument");
-                    symbol = instrumentObj.getString("symbol");
-                    System.out.println("Symbol: " + symbol);
+                    for (int i = 0; i < positionsArr.length(); i++) {
+                        JSONObject positionObj = positionsArr.getJSONObject(i);
+                        JSONObject instrumentObj = positionObj.getJSONObject("instrument");
+                        symbol = instrumentObj.getString("symbol");
+                        System.out.println("Symbol: " + symbol);
 
-                    tempPosition = new Position(symbol, positionObj.getString("longQuantity"), positionObj.getString("averagePrice"));
+                        Double avgPrice = Double.valueOf(positionObj.getString("averagePrice"));
+                        tempPosition = new Position(symbol, positionObj.getString("longQuantity"), String.format("%.2f", avgPrice));
 //positions.add(tempPosition);
+                        positions.add(tempPosition);
 
+                        //System.out.println("Temp pos: " + tempPosition.symbol + tempPosition.quantity);
+                        String numOfPos = positionObj.getString("longQuantity");
 
-                    //System.out.println("Temp pos: " + tempPosition.symbol + tempPosition.quantity);
-                    String numOfPos = positionObj.getString("longQuantity");
-                    numOfPos = numOfPos.substring(0, numOfPos.length() - 2);
-                    int posNum = Integer.valueOf(numOfPos);
+                        numOfPos = numOfPos.substring(0, numOfPos.length() - 2);
+                    }
+                   
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -166,7 +174,7 @@ String symbol;
         protected void onPostExecute(Position tempPosition) {//when doInBackground is done executing
             super.onPostExecute(tempPosition);
             System.out.println("ADDed: " + tempPosition.symbol);
-positions.add(tempPosition);
+
             adapter.notifyDataSetChanged();
         }
 

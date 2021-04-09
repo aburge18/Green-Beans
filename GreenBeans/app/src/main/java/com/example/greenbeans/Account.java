@@ -49,6 +49,7 @@ public class Account {
         this.accountID = accountID;
     }
 
+
     public void setAuthTokenViaRefresh(){
 
         FormBody formBody = new FormBody.Builder().add("grant_type", "refresh_token").add("refresh_token", refreshToken).add("client_id", "HJ8DN850FB0BCX4ZCYCZK85SDKLKPLX7").add("redirect_uri", "http://localhost").build();

@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainViewAdapter.ProfileViewHolder> {
+
     ArrayList<Client> clients;
     IListener mListener;
+
     public ManagerMainViewAdapter(ArrayList<Client> clients, Context context){
         this.clients = clients;
         mListener = (IListener) context;
@@ -32,14 +34,13 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
     @Override
     public void onBindViewHolder(@NonNull ProfileViewHolder holder, int position) {
         Client client = clients.get(position);
-        System.out.println("Trying " + clients.get(0).accounts.get(0).refreshToken + " _ " + clients.size() + " _ " + clients.get(0).accounts.size());
         holder.name.setText(client.name);
         holder.email.setText(client.email);
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             mListener.setCurrentClient(clients.get(position));
-
             }
         });
     }
@@ -57,7 +58,6 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         TextView name;
         TextView email;
-        Button delete;
         public ProfileViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.clientNameTV);

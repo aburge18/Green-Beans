@@ -13,41 +13,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ClientPortfolioFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class ClientPortfolioFragment extends Fragment {
 
     Client currentClient;
-
     RecyclerView recyclerView;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     ClientPortfolioViewAdapter adapter;
     LinearLayoutManager layoutManager;
-    ArrayList<Account> accounts = new ArrayList<>();
+
     public ClientPortfolioFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ClientPortfolioFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ClientPortfolioFragment newInstance(String param1, String param2) {
         ClientPortfolioFragment fragment = new ClientPortfolioFragment();
         Bundle args = new Bundle();
@@ -70,25 +53,16 @@ public class ClientPortfolioFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         View view = inflater.inflate(R.layout.fragment_client_portfolio, container, false);
         recyclerView = view.findViewById(R.id.clientRecView);
         currentClient = mListener.getCurrentClient();
-        adapter = new ClientPortfolioViewAdapter(accounts, getContext());
-
+        adapter = new ClientPortfolioViewAdapter(currentClient.accounts, getContext());
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-        for (int i = 0; i < currentClient.accounts.size(); i++){
-            accounts.add(currentClient.accounts.get(i));
-            System.out.println("Added account: " + accounts.get(i).refreshToken);
-            adapter.notifyDataSetChanged();
-        }
-
-
         return view;
     }
-
-
 
     @Override
     public void onAttach(@NonNull Context context){
@@ -99,13 +73,10 @@ public class ClientPortfolioFragment extends Fragment {
             throw new RuntimeException(context.toString() + " must implement listener");
         }
     }
+
     IListener mListener;
 
     public interface IListener{
         Client getCurrentClient();
-        void setCurrentAccount(Account account);
     }
-
-
-
 }

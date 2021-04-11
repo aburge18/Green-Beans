@@ -13,17 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
-import java.security.PublicKey;
+
 import java.util.ArrayList;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class AccountPositionsViewAdapter extends RecyclerView.Adapter<AccountPositionsViewAdapter.ProfileViewHolder> {
 
@@ -51,31 +43,24 @@ public class AccountPositionsViewAdapter extends RecyclerView.Adapter<AccountPos
         holder.posSymbolTV.setText(currPosition.symbol);
         holder.posBuyPriceTV.setText(currPosition.buyPrice);
         holder.posQuantityTV.setText(currPosition.quantity);
-        new Positionst().execute(position);
+        new SetPrice().execute(position);
+
         if (currPosition.currentPrice != null){
             holder.currentStockPriceTV.setText(currPosition.currentPrice);
         }
+
         holder.buyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                mListener.setPositionToBuy(currPosition.symbol);
+                mListener.setPositionToBuy(currPosition);
             }
         });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        holder.sellBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               // mListener.setPositionToSell(currPosition);
+            }
+        });
     }
 
     @Override
@@ -87,8 +72,7 @@ public class AccountPositionsViewAdapter extends RecyclerView.Adapter<AccountPos
         }
     }
 
-
-    public static class ProfileViewHolder extends RecyclerView.ViewHolder{
+    public static class ProfileViewHolder extends RecyclerView.ViewHolder{//initialize all view elements
 
         TextView posBuyPriceTV, posSymbolTV, posQuantityTV, currentStockPriceTV;
         Button buyBtn, sellBtn;
@@ -96,104 +80,45 @@ public class AccountPositionsViewAdapter extends RecyclerView.Adapter<AccountPos
         public ProfileViewHolder(@NonNull View itemView) {
             super(itemView);
 
-
             posBuyPriceTV = itemView.findViewById(R.id.posBuyPriceTV);
-
             buyBtn = itemView.findViewById(R.id.buyPosBtn);
             sellBtn = itemView.findViewById(R.id.sellPosBtn);
             posSymbolTV = itemView.findViewById(R.id.posSymbolTV);
             posQuantityTV = itemView.findViewById(R.id.posQuantityTV);
             currentStockPriceTV = itemView.findViewById(R.id.currentStockPriceTV);
         }
-
-
-
-
-
-
     }
+
     public interface IListener{
-        void setPositionToBuy(String positionToBuy);
+        void setPositionToBuy(Position positionToBuy);
+        //void setPositionToSell(Position positionToSell)
     }
-    public String getCurrentPositionPrice(String symbol){
 
-
-        String stockPrice;
-        OkHttpClient client = new OkHttpClient();
-        String url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=" + symbol;
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .addHeader("x-rapidapi-key", "fb1ef2c3bfmshfc9f09614f04e15p1f5320jsn81db61cc9d2a")
-                .addHeader("x-rapidapi-host", "apidojo-yahoo-finance-v1.p.rapidapi.com")
-                .build();
-
-
-
-
-
-        try(Response response1 = client.newCall(request).execute()) {
-
-            String responseStr = response1.body().string();
-            JSONObject responseObj = new JSONObject(responseStr);
-            System.out.println("Response: " + responseStr);
-            JSONObject quoteResponseObj = responseObj.getJSONObject("quoteResponse");
-            JSONArray resultArr = quoteResponseObj.getJSONArray("result");
-            JSONObject positionObj = resultArr.getJSONObject(0);
-            String currentPrice = positionObj.getString("regularMarketPrice");
-            System.out.println("BID: " + currentPrice);
-            return currentPrice;
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-
-        return "ERROR: NO PRICE";
-
-
-    }
-    public class Positionst extends AsyncTask<Integer, Double, String> implements Runnable {
+    public class SetPrice extends AsyncTask<Integer, Double, String> implements Runnable {//retrieves current price from td ameritrade
 
         Position currentPosition;
         Integer position;
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public String doInBackground(Integer... ints) {
-            String symobol;
+
             position = ints[0];
-           currentPosition = positions.get(ints[0]);
+            currentPosition = positions.get(ints[0]);
             currentPosition.setCurrentPrice();
-            String price = "";
-            //getCurrentPositionPrice(symobol);
+            String price = currentPosition.currentPrice;
+
             return price;
-
-
-
-
         }
 
-        protected void onProgressUpdate(Double... values) {
-
-        }
+        protected void onProgressUpdate(Double... values) {}
 
         protected void onPostExecute(String price) {//when doInBackground is done executing
             super.onPostExecute(price);
             System.out.println("Price:  " + price);
-
-            //currentPosition.currentPrice = price;
-            //positions.get(position).currentPrice = price;
- notifyDataSetChanged();
-
-
-
+            notifyDataSetChanged();
         }
 
         @Override
-        public void run() {
-
-        }
-
-
+        public void run() {}
     }
-
-
 }

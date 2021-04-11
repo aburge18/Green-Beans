@@ -11,12 +11,12 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements ManagerMainFragment.IListener, ManagerMainViewAdapter.IListener, ClientPortfolioFragment.IListener, AccountPositionsFragment.IListener, AccountPositionsViewAdapter.IListener, ClientPortfolioViewAdapter.IListener, BuyPositionFragment.IListener, ConfirmBuyFragment.IListener{
     private FirebaseAuth mAuth;
     String userID;
-
     Client currentClient;
     Account currentAccount;
-    String positionToBuy;
+    Position positionToBuy;
     String symbol;
     Double quantity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,13 +36,13 @@ public class MainActivity extends AppCompatActivity implements ManagerMainFragme
         this.currentClient = client;
         getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ClientPortfolioFragment(), "ClientPortfolio").addToBackStack(null).commit();
     }
+
     public Client getCurrentClient(){
         return currentClient;
     }
 
     @Override
     public void setCurrentAccount(Account account) {
-
         this.currentAccount = account;
         getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new AccountPositionsFragment(), "AccountPositions").addToBackStack(null).commit();
     }
@@ -51,32 +51,31 @@ public class MainActivity extends AppCompatActivity implements ManagerMainFragme
         return currentAccount;
     }
 
-    public void setPositionToBuy(){
-        positionToBuy = "";
+    public void setPositionToBuy(){//open buy fragment to buy any position
+        positionToBuy = null;
         getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new BuyPositionFragment(), "BuyPositions").addToBackStack(null).commit();
     }
-    public void setPositionToBuy(String positionToBuy){
+    public void setPositionToBuy(Position positionToBuy){//open buy fragment to specified any position
         this.positionToBuy = positionToBuy;
         getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new BuyPositionFragment(), "BuyPositions").addToBackStack(null).commit();
     }
-    public String getPositionToBuy(){
+    public void setPositionToSell(Position positionToBuy){
+        this.positionToBuy = positionToBuy;
+        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new SellPositionFragment(), "SellPositions").addToBackStack(null).commit();
+    }
+    public Position getPositionToBuy(){
         return positionToBuy;
     }
 
     @Override
-    public void confirmBuy(Double quantity, String symbol) {
+    public void confirmBuy(Double quantity, Position positionToBuy) {
 
         this.quantity = quantity;
-        this.symbol = symbol;
+        this.positionToBuy = positionToBuy;
         getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ConfirmBuyFragment(), "ConfirmBuy").addToBackStack(null).commit();
     }
 
-    public ArrayList<String> getConfirmBuy(){
-        ArrayList list = new ArrayList();
-        list.add(quantity.toString());
-        list.add(symbol);
-        return list;
+    public String getConfirmBuyQuantity(){
+        return quantity.toString();
     }
-
-    ;
 }

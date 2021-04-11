@@ -16,51 +16,31 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
-import okhttp3.Request;
-import okhttp3.Response;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AccountPositionsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class AccountPositionsFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private final okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
-    // TODO: Rename and change types of parameters
+
+
     private String mParam1;
     private String mParam2;
-    RecyclerView recyclerView;
 
+    RecyclerView recyclerView;
     AccountPositionsViewAdapter adapter;
     LinearLayoutManager layoutManager;
-ArrayList<Position> positions = new ArrayList<>();
     Account currentAccount;
-    String authCode;
+
+
     public AccountPositionsFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AccountPositionsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static AccountPositionsFragment newInstance(String param1, String param2) {
         AccountPositionsFragment fragment = new AccountPositionsFragment();
         Bundle args = new Bundle();
@@ -84,19 +64,19 @@ ArrayList<Position> positions = new ArrayList<>();
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_account_positions, container, false);
-positions = new ArrayList<>();
-        adapter = new AccountPositionsViewAdapter(positions, getContext());
+
+        currentAccount =  mListener.getCurrentAccount();
+        currentAccount.positions = new ArrayList<>();
+
+        adapter = new AccountPositionsViewAdapter(currentAccount.positions, getContext());
         recyclerView = view.findViewById(R.id.positionRecView);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
-
         recyclerView.setAdapter(adapter);
 
-        currentAccount = mListener.getCurrentAccount();
-        //System.out.println("ALmost done: " + positions.get(1).symbol);
-        authCode = currentAccount.authCode;
-        new Positions().execute();
+        new SetAuthToken().execute();
+
         Button addPositionsBtn = view.findViewById(R.id.addPositionBtn);
         addPositionsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,63 +88,17 @@ positions = new ArrayList<>();
         return view;
     }
 
-    public class Positions extends AsyncTask<Integer, Double, Position> implements Runnable {
 
-String symbol;
+
+
+    public class SetAuthToken extends AsyncTask<Integer, Double, Position> implements Runnable {//set accounts auth token for future
+
+
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public Position doInBackground(Integer... values) {
-            ArrayList<Double> avgs = new ArrayList<Double>();//temp list to send to postExecute
-            final Request request = new Request.Builder().url("https://api.tdameritrade.com/v1/accounts?fields=positions").addHeader("Authorization", authCode).build();
-
-            String response1Body;
-            try {
-                try(Response response1 = client.newCall(request).execute()) {
-                    if (!response1.isSuccessful()) try {
-                        throw new IOException("Unexpected code " + response1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    response1Body = response1.body().string();
-                    System.out.println("Response 2: " + response1Body);
-                    JSONArray responseArray = new JSONArray(response1Body);
-                    Position tempPosition = null;
-                    JSONObject responseObj = responseArray.getJSONObject(0);
-                    JSONObject securitiesAccountObj =  responseObj.getJSONObject("securitiesAccount");
-                    JSONArray positionsArr = securitiesAccountObj.getJSONArray("positions");
-                    for (int i = 0; i < positionsArr.length(); i++) {
-                        JSONObject positionObj = positionsArr.getJSONObject(i);
-                        JSONObject instrumentObj = positionObj.getJSONObject("instrument");
-                        symbol = instrumentObj.getString("symbol");
-                        System.out.println("Symbol: " + symbol);
-
-                        Double avgPrice = Double.valueOf(positionObj.getString("averagePrice"));
-                        tempPosition = new Position(symbol, positionObj.getString("longQuantity"), String.format("%.2f", avgPrice));
-//positions.add(tempPosition);
-                        positions.add(tempPosition);
-
-                        //System.out.println("Temp pos: " + tempPosition.symbol + tempPosition.quantity);
-                        String numOfPos = positionObj.getString("longQuantity");
-
-                        numOfPos = numOfPos.substring(0, numOfPos.length() - 2);
-                    }
-                   
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-
-                        }
-                    });
-                    System.out.println("Response 1 response:          " + response1);
-                    System.out.println("Response 1 cache response:    " + response1.cacheResponse());
-                    System.out.println("Response 1 network response:  " + response1.networkResponse());
-                    return tempPosition;
-                }
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-            }
-            return new Position();//send list of nums to postExecute
+            currentAccount.setAuthTokenViaRefresh();//create auth token in account obj
+            return new Position();
         }
 
         protected void onProgressUpdate(Double... values) {
@@ -173,17 +107,34 @@ String symbol;
 
         protected void onPostExecute(Position tempPosition) {//when doInBackground is done executing
             super.onPostExecute(tempPosition);
-            System.out.println("ADDed: " + tempPosition.symbol);
 
+            new SetPositions().execute();
             adapter.notifyDataSetChanged();
         }
 
         @Override
-        public void run() {
+        public void run() {}
+    }
 
+    public class SetPositions extends AsyncTask<Integer, Double, Position> implements Runnable {//get positions in account
 
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        @Override
+        public Position doInBackground(Integer... values) {
 
+            currentAccount.addPositions();//searched td database and adds all position to linked account obj
+            return new Position();//send list of nums to postExecute
         }
+
+        protected void onProgressUpdate(Double... values) {}
+
+        protected void onPostExecute(Position tempPosition) {//when doInBackground is done executing
+            super.onPostExecute(tempPosition);
+            adapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void run() {}
     }
 
     @Override

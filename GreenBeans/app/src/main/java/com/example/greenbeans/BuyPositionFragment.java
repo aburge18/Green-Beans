@@ -46,10 +46,13 @@ public class BuyPositionFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-TextView buyPriceTV;
+
+    TextView buyPriceTV;
     Double priceVal;
     String positionSymbol;
     Double quantity ;
+    Position currentPosition;
+
     public BuyPositionFragment() {
         // Required empty public constructor
     }
@@ -90,59 +93,60 @@ TextView buyPriceTV;
         TextView buySymobolTV = view.findViewById(R.id.buySymbolTV);
         TextView buyAmountTV = view.findViewById(R.id.buyAmountTV);
         TextView buyPositionTV = view.findViewById(R.id.buyPositionTV);
-
         EditText searchETV = view.findViewById(R.id.buySearchETV);
         TextView buyTotalTV = view.findViewById(R.id.buyTotalTV);
-buyPriceTV = view.findViewById(R.id.buyPriceTV);
-        positionSymbol = mListener.getPositionToBuy();
-        if(!positionSymbol.matches("")){
-            new Positions().execute();
+        buyPriceTV = view.findViewById(R.id.buyPriceTV);
+        currentPosition = mListener.getPositionToBuy();
+
+        quantity = 0.0;
+        if(currentPosition != null){//if position to buy was already specified
+            new GetPositionPrice().execute();
+            positionSymbol = currentPosition.symbol;
         }
 
-        searchETV.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        searchETV.setOnFocusChangeListener(new View.OnFocusChangeListener() {//if user clicks or unclicks search feature
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(!searchETV.getText().toString().matches("")) {
+                if(!searchETV.getText().toString().matches("")) {//search bar is not empty
+
+                    currentPosition = new Position();//create new position with specified symbol
+                    currentPosition.symbol = searchETV.getText().toString().toUpperCase();
+                    new GetPositionPrice().execute();//get the positions current price
                     positionSymbol = searchETV.getText().toString();
                     buySymobolTV.setText(positionSymbol);
                     buyPositionTV.setText(positionSymbol);
-                    new Positions().execute();
                 }
             }
         });
-        Button buyPositionButton = view.findViewById(R.id.buyPositionBtn);
 
+        Button buyPositionButton = view.findViewById(R.id.buyPositionBtn);
         buyPositionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (quantity > 0){
-                    mListener.confirmBuy(quantity, positionSymbol);
+                    Position tempPosition = new Position();
+                    tempPosition.symbol = buySymobolTV.getText().toString();
+                    mListener.confirmBuy(quantity, tempPosition);
                 }
             }
         });
-buySymobolTV.setText(positionSymbol);
-quatityETV.setText("0");
-buyPositionTV.setText(positionSymbol);
-buyAmountTV.setText("0");
 
+        buySymobolTV.setText(positionSymbol);
+        quatityETV.setText("0");
+        buyPositionTV.setText(positionSymbol);
+        buyAmountTV.setText("0");
+        buyTotalTV.setText("0.00");
 
-quatityETV.addTextChangedListener(new TextWatcher() {
+        quatityETV.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-
-
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
                 if (!quatityETV.getText().toString().matches("")) {
-
                     DecimalFormat df = new DecimalFormat("0.00");
                     quantity = Double.valueOf(quatityETV.getText().toString());
                     buyAmountTV.setText(quantity.toString());
@@ -151,92 +155,39 @@ quatityETV.addTextChangedListener(new TextWatcher() {
                 }
             }
         });
-
-
         return view;
     }
 
-
-    public class Positions extends AsyncTask<Integer, Double, String> implements Runnable {
-
+    public class GetPositionPrice extends AsyncTask<Integer, Double, String> implements Runnable {
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public String doInBackground(Integer... values) {
-            String price = null;
-            try {
-                price = getStockPrice();
-                return price;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return price;
-
+            currentPosition.setCurrentPrice();
+            return currentPosition.currentPrice;
         }
 
-        protected void onProgressUpdate(Double... values) {
-
-        }
+        protected void onProgressUpdate(Double... values) {}
 
         protected void onPostExecute(String price) {//when doInBackground is done executing
             super.onPostExecute(price);
+
             System.out.println("Price:  " + price);
             priceVal = Double.valueOf(price);
+            if(getActivity() == null) {
+                return;
+            }
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-buyPriceTV.setText(price);
-
+                    buyPriceTV.setText(price);
                 }
             });
         }
 
         @Override
-        public void run() {
-
-
-
-        }
-
-
+        public void run() {}
     }
-    public String getStockPrice() throws IOException {
-        String stockPrice;
-        OkHttpClient client = new OkHttpClient();
-String url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=" + positionSymbol;
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .addHeader("x-rapidapi-key", "fb1ef2c3bfmshfc9f09614f04e15p1f5320jsn81db61cc9d2a")
-                .addHeader("x-rapidapi-host", "apidojo-yahoo-finance-v1.p.rapidapi.com")
-                .build();
-
-
-
-
-
-        try(Response response1 = client.newCall(request).execute()) {
-
-            String responseStr = response1.body().string();
-            JSONObject responseObj = new JSONObject(responseStr);
-            JSONObject quoteResponseObj = responseObj.getJSONObject("quoteResponse");
-            JSONArray resultArr = quoteResponseObj.getJSONArray("result");
-            JSONObject positionObj = resultArr.getJSONObject(0);
-            String currentPrice = positionObj.getString("regularMarketPrice");
-            System.out.println("BID: " + currentPrice);
-            return currentPrice;
-    } catch (IOException | JSONException e) {
-        e.printStackTrace();
-    }
-
-
-
-
-
-        return "";
-    }
-
 
     @Override
     public void onAttach(@NonNull Context context){
@@ -247,11 +198,11 @@ String url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quot
             throw new RuntimeException(context.toString() + " must implement listener");
         }
     }
-   IListener mListener;
+
+    IListener mListener;
 
     public interface IListener{
-        String getPositionToBuy();
-        void confirmBuy(Double quantity, String symbol);
+        Position getPositionToBuy();
+        void confirmBuy(Double quantity, Position position);
     }
-
 }

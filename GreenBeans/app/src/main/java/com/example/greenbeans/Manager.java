@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class Manager {
 
     String fName, lName, uID, email;
-
     ArrayList<Client> clients = new ArrayList<>();
 
     public Manager (String fName, String lName, String uID, String email){
@@ -14,6 +13,8 @@ public class Manager {
         this.uID = uID;
         this.email = email;
     }
+    public Manager(){    }
+
     public void addClient(Client client){
         clients.add(client);
     }

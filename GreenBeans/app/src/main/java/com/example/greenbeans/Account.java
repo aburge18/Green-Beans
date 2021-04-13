@@ -1,8 +1,5 @@
 package com.example.greenbeans;
 
-import android.content.Context;
-
-import androidx.annotation.NonNull;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +17,7 @@ import okhttp3.Response;
 public class Account {
     private final okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
     String accountType, refreshToken, authCode, lastRefresh, accountID;
+    int stage = 0;
     ArrayList<Position> positions = new ArrayList<Position>();
 
     public Account(){}
@@ -72,6 +70,7 @@ public class Account {
 
                 authCode = access;
                 authCode = "Bearer " + authCode; //add "Bearer " since it is required in header post request
+                stage = 2;
                 System.out.println("Auth Code: " + authCode);
                 System.out.println(response1Body);
                 System.out.println("Response 1 response:          " + response1);
@@ -130,6 +129,7 @@ public class Account {
                     tempPosition = new Position(symbol, positionObj.getString("longQuantity"), String.format("%.2f", avgPrice));
                     positions.add(tempPosition);
                 }
+                stage = 4;
                 System.out.println("Response 1 response:          " + response1);
                 System.out.println("Response 1 cache response:    " + response1.cacheResponse());
                 System.out.println("Response 1 network response:  " + response1.networkResponse());

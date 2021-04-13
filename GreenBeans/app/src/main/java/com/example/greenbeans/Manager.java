@@ -13,7 +13,7 @@ public class Manager {
         this.uID = uID;
         this.email = email;
     }
-    public Manager(){    }
+    public Manager(){}
 
     public void addClient(Client client){
         clients.add(client);

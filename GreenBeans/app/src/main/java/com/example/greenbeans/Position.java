@@ -22,6 +22,7 @@ public class Position {
         this.symbol = symbol;
         this.quantity = quantity;
         this.buyPrice = buyPrice;
+        this.buyPriceNum = Double.valueOf(buyPrice);
         setCurrentPrice();
     }
 
@@ -43,6 +44,7 @@ public class Position {
                 DecimalFormat df = new DecimalFormat("0.00");
                 currentPrice = df.format(Double.valueOf(positionObj.getString("lastPrice")));
 
+                currentPriceVal = Double.valueOf(currentPrice);
 
             } catch (IOException | JSONException e) {
                 e.printStackTrace();

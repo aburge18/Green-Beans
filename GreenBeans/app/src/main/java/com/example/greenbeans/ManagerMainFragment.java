@@ -46,6 +46,7 @@ public class ManagerMainFragment extends Fragment {
     ManagerMainViewAdapter adapter;
     String managerID;
     Manager currentManager;
+
     int clientIndex;
     FirebaseFirestore db = FirebaseFirestore.getInstance();//initialize firestore
     public ManagerMainFragment() {
@@ -155,7 +156,8 @@ public class ManagerMainFragment extends Fragment {
                                     accountsList.add(accountsArr.get(i).toString());
                                 }
                                 currentManager.clients.get(clientIndex).setClient(clientName, clientEmail, accountsList);
-                                currentManager.clients.get(clientIndex).getAccounts();
+                                currentManager.clients.get(clientIndex).getGainsStart();
+                                //currentManager.clients.get(clientIndex).getAccounts();
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }

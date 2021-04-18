@@ -123,7 +123,7 @@ public class ManagerMainFragment extends Fragment {
                         //Get auth tokens for each client
                         Client tempClient = new Client(clientsArr.getString(i));
                         currentManager.addClient(tempClient);
-                        System.out.println("Size 3: " + currentManager.clients.size());
+
                     }
 
                     getClients();//get all client accounts

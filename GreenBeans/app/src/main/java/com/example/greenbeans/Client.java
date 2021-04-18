@@ -21,24 +21,13 @@ public class Client {
     String clientUID, name, email, gainsStr;
     ArrayList<Account> accounts = new ArrayList<>();
     ArrayList<String> accountIDList = new ArrayList();
-    Double buyCost = 0.0;
-    Double portfolioValue = 0.0;
+    Double buyCost = 0.0;//cash paid for current positions
+    Double portfolioValue = 0.0;//current value of all positions in all accounts
     int stage = 0;
-    Double gains;
-    public Client(){}
+    Double gains;//current value - cost
 
     public Client(String clientUID){
         this.clientUID = clientUID;
-    }
-
-    public Client(String name, String uID, String email){
-        this.name = name;
-        this.clientUID = uID;
-        this.email = email;
-    }
-
-    public void addAccount(Account account){
-        accounts.add(account);
     }
 
     public void setClient(String name, String email, ArrayList<String> accountIDList){
@@ -47,36 +36,7 @@ public class Client {
         this.accountIDList = accountIDList;
     }
 
-    public void getAccounts(){//get accountID's from firebase
-        FirebaseFirestore db = FirebaseFirestore.getInstance();//initialize firestore
-        Account tempAccount = new Account();
 
-        for (int i = 0; i < accountIDList.size(); i++) {
-            DocumentReference accountInfo = db.collection("accounts").document(accountIDList.get(i));
-            accountInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                    DocumentSnapshot document = task.getResult();
-                    JSONObject accountInfo = new JSONObject(document.getData());
-
-                    try {
-                        tempAccount.addAccount(accountInfo.getString("accountType"), accountInfo.getString("refreshToken"), accountInfo.getString("lastRefresh"));
-                        accounts.add(tempAccount);
-                        if (accountIDList.size() == accounts.size()){
-                            stage = 2;
-                            System.out.println("STAGE 1:");
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            });
-        }
-
-    }
 
     public void getGainsStart(){
         if (stage == 0) {
@@ -108,20 +68,18 @@ public class Client {
                             for (int z = 0; z < accounts.size(); z++) {//get all positions in each account
                                 accounts.get(z).addPositions();
                             }
-                            if (accounts.get(accounts.size() - 1).stage == 4) {//if account has added all positions
+
+                            if (accounts.get(accounts.size() - 1).accountCurrentVal != null) {//if account has added all positions
 
                                 for (int y = 0; y < accounts.size(); y++) {//loop through all the clients accounts and all of their positions
-                                    for (int x = 0; x < accounts.get(y).positions.size(); x++) {
-                                        //curent value of all positions
-                                        portfolioValue += (Double.valueOf(accounts.get(y).positions.get(x).quantity) * accounts.get(y).positions.get(x).currentPriceVal);
 
-                                        //value of all positions when purchased
-                                        buyCost += (accounts.get(y).positions.get(x).buyPriceNum * Double.valueOf(accounts.get(y).positions.get(x).quantity));
-
-                                        //System.out.println("BUY FOR: " + name + " " + accounts.get(y).positions.get(x).buyPriceNum + "-" + Double.valueOf(accounts.get(y).positions.get(x).quantity));
-                                        //System.out.println( x + " " + y + " :XY" + buyCost + " + " + portfolioValue);
-                                        //System.out.println("SIZE... " + accounts.size());
+                                    try {//no delay causes portfolio value to be 0... sometimes
+                                        Thread.sleep(100);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
                                     }
+                                    portfolioValue += accounts.get(y).accountCurrentVal;
+                                    buyCost += accounts.get(y).accountBuyVal;
                                 }
                                 //set stage to 4 to end while loop
                                 stage = 4;
@@ -129,10 +87,39 @@ public class Client {
                                 gains = portfolioValue - buyCost;
                                 gainsStr = df.format(gains);//get clients gains for all accounts
                             }
-
                         }
                     }
                 }
             }
         }
+
+
+    public void getAccounts(){//get accountID's from firebase
+        FirebaseFirestore db = FirebaseFirestore.getInstance();//initialize firestore
+        Account tempAccount = new Account();
+
+        for (int i = 0; i < accountIDList.size(); i++) {
+            DocumentReference accountInfo = db.collection("accounts").document(accountIDList.get(i));
+            accountInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                    DocumentSnapshot document = task.getResult();
+                    JSONObject accountInfo = new JSONObject(document.getData());
+
+                    try {
+                        tempAccount.addAccount(accountInfo.getString("accountType"), accountInfo.getString("refreshToken"), accountInfo.getString("lastRefresh"));
+                        accounts.add(tempAccount);
+                        if (accountIDList.size() == accounts.size()){
+                            stage = 2;
+                            System.out.println("STAGE 1:");
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    }
     }

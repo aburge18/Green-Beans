@@ -39,6 +39,7 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
         Client client = clients.get(position);
         holder.name.setText(client.name);
 
+
         if (client.gainsStr != null){
             holder.totalGainsTV.setText(client.gainsStr);
         }else{
@@ -66,10 +67,12 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
 
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         TextView name;
+
         TextView totalGainsTV;
         public ProfileViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.clientNameTV);
+
             totalGainsTV = itemView.findViewById(R.id.totalGainsTV);
         }
     }

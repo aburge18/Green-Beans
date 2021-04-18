@@ -15,8 +15,12 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Account {
+
     private final okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
-    String accountType, refreshToken, authCode, lastRefresh, accountID;
+
+    String accountType, refreshToken, authCode, lastRefresh, accountID, accountBuyValStr, accountCurrentValStr;
+    Double accountBuyVal = 0.0;
+    Double accountCurrentVal = 0.0;
     int stage = 0;
     ArrayList<Position> positions = new ArrayList<Position>();
 
@@ -56,7 +60,7 @@ public class Account {
 
         try {
             try(Response response1 = client.newCall(request).execute()) {//try to execute post request
-                if (!response1.isSuccessful()) try {//if request isnt succesfull
+                if (!response1.isSuccessful()) try {//if request isnt successful
                     throw new IOException("Unexpected code " + response1);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -125,11 +129,13 @@ public class Account {
                     System.out.println("Symbol: " + symbol);
 
                     Double avgPrice = Double.valueOf(positionObj.getString("averagePrice"));
-
+Double quantity = Double.valueOf(positionObj.getString("longQuantity"));
+                    accountBuyVal += (avgPrice * quantity);
                     tempPosition = new Position(symbol, positionObj.getString("longQuantity"), String.format("%.2f", avgPrice));
                     positions.add(tempPosition);
                 }
-                stage = 4;
+                getAccountValue();
+                //stage = 4;
                 System.out.println("Response 1 response:          " + response1);
                 System.out.println("Response 1 cache response:    " + response1.cacheResponse());
                 System.out.println("Response 1 network response:  " + response1.networkResponse());
@@ -270,6 +276,23 @@ public class Account {
 
         return order;
     }
+    public void getAccountValue(){
+            GetCurrentAccountValue runnable = new GetCurrentAccountValue();
+            new Thread(runnable).start();
+    }
 
-
+    class GetCurrentAccountValue implements Runnable {
+        @Override
+        public void run() {
+            for (int i = 0; i < positions.size(); i++){
+                positions.get(i).setCurrentPrice();
+            }
+            for (int i = 0; i < positions.size(); i++){
+               accountCurrentVal += (positions.get(i).currentPriceVal * Double.valueOf(positions.get(i).quantity));
+                System.out.println("ACCOUNT VALUE: " + accountCurrentVal + accountType);
+            }
+            stage = 5;
+            System.out.println("FUCK YOU");
+        }
+    }
 }

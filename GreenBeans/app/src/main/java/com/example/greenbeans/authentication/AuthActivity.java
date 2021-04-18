@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.greenbeans.ClientAddAccountFragment;
 import com.example.greenbeans.MainActivity;
 import com.example.greenbeans.R;
 import com.google.firebase.auth.FirebaseAuth;

@@ -44,7 +44,7 @@ public class AccountPositionsViewAdapter extends RecyclerView.Adapter<AccountPos
         holder.posBuyPriceTV.setText(currPosition.buyPrice);
         holder.posQuantityTV.setText(currPosition.quantity);
         new SetPrice().execute(position);
-
+        System.out.println("Executing");
         if (currPosition.currentPrice != null){
             holder.currentStockPriceTV.setText(currPosition.currentPrice);
         }
@@ -94,28 +94,37 @@ public class AccountPositionsViewAdapter extends RecyclerView.Adapter<AccountPos
         //void setPositionToSell(Position positionToSell)
     }
 
-    public class SetPrice extends AsyncTask<Integer, Double, String> implements Runnable {//retrieves current price from td ameritrade
+    public class SetPrice extends AsyncTask<Integer, Double, ArrayList<Integer>> implements Runnable {//retrieves current price from td ameritrade
 
         Position currentPosition;
         Integer position;
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
-        public String doInBackground(Integer... ints) {
+        public ArrayList<Integer> doInBackground(Integer... ints) {
 
             position = ints[0];
             currentPosition = positions.get(ints[0]);
             currentPosition.setCurrentPrice();
+            int time = currentPosition.countDownTime;
             String price = currentPosition.currentPrice;
-
-            return price;
+ArrayList<Integer> list = new ArrayList<>();
+list.add(time);
+list.add(position);
+            return  list;
         }
 
         protected void onProgressUpdate(Double... values) {}
 
-        protected void onPostExecute(String price) {//when doInBackground is done executing
-            super.onPostExecute(price);
-            System.out.println("Price:  " + price);
-            notifyDataSetChanged();
+        protected void onPostExecute(ArrayList<Integer> list) {//when doInBackground is done executing
+            super.onPostExecute(list);
+
+            System.out.println("Price:  " + list.get(0));
+            if (list.get(0) == 0){
+                notifyDataSetChanged();
+            }else{
+                new SetPrice().execute(list.get(1));
+            }
+
         }
 
         @Override

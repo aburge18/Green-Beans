@@ -45,7 +45,6 @@ public class Position {
                 currentPrice = df.format(Double.valueOf(positionObj.getString("lastPrice")));
 
                 currentPriceVal = Double.valueOf(currentPrice);
-
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }

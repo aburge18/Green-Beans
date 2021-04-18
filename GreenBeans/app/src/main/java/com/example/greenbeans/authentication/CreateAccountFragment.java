@@ -134,11 +134,11 @@ public class CreateAccountFragment extends Fragment {
                                 docData.put("fName", firstNameTxt);
                                 docData.put("lName", lastNameTxt);
                                 docData.put("accountID", mAuth.getUid());
-                                ArrayList temp = new ArrayList();
-                                temp.add("");
-                                docData.put("likedAlbums", temp);
-                                docData.put("trackHistory", temp);
-                                db.collection("albumUsers").document(emailTxt.toLowerCase()).set(docData);
+                               // ArrayList temp = new ArrayList();
+                               // temp.add("");
+                                //docData.put("likedAlbums", temp);
+                                //docData.put("trackHistory", temp);
+                                //db.collection("albumUsers").document(emailTxt.toLowerCase()).set(docData);
 
                                 db.collection("managers").document(mAuth.getUid()).set(manager);
                                 getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new LoginFragment(), "Login").addToBackStack(null).commit();

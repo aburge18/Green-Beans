@@ -38,7 +38,6 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
     public void onBindViewHolder(@NonNull ProfileViewHolder holder, int position) {
         Client client = clients.get(position);
         holder.name.setText(client.name);
-        holder.email.setText(client.email);
 
         if (client.gainsStr != null){
             holder.totalGainsTV.setText(client.gainsStr);
@@ -67,12 +66,10 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
 
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         TextView name;
-        TextView email;
         TextView totalGainsTV;
         public ProfileViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.clientNameTV);
-            email = itemView.findViewById(R.id.clientEmailTV);
             totalGainsTV = itemView.findViewById(R.id.totalGainsTV);
         }
     }

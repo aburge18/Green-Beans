@@ -67,7 +67,7 @@ public class AccountPositionsFragment extends Fragment {
 
         currentAccount =  mListener.getCurrentAccount();
         currentAccount.positions = new ArrayList<>();
-
+        System.out.println("current account: " + currentAccount.clientID);
         adapter = new AccountPositionsViewAdapter(currentAccount.positions, getContext());
         recyclerView = view.findViewById(R.id.positionRecView);
         layoutManager = new LinearLayoutManager(getContext());

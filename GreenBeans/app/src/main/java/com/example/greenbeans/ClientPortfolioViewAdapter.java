@@ -45,6 +45,7 @@ public class ClientPortfolioViewAdapter extends RecyclerView.Adapter<ClientPortf
                 break;
         }
 
+
         holder.accountType.setText(accountType);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -76,4 +77,5 @@ public class ClientPortfolioViewAdapter extends RecyclerView.Adapter<ClientPortf
     public interface IListener{
         void setCurrentAccount(Account account);
     }
+
 }

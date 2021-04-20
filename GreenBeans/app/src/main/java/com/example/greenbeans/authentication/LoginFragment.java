@@ -38,7 +38,7 @@ public class LoginFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     //Buttons on front page
-    Button loginBtn, rgstrBtn, forgotBtn;
+    Button loginBtn, rgstrBtn, rgstrBtn2, forgotBtn;
 
     //Edit Textboxes on login page
     EditText emailETV, passETV;
@@ -89,7 +89,7 @@ public class LoginFragment extends Fragment {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.setUsername("ixSWAY3Eh6X9siANDrDT4rOIiMF2");
+                //mListener.setUsername("CS0J8SyuAJoLnCakgCxe");
                 String email = emailETV.getText().toString();
                 String passwd = passETV.getText().toString();
 
@@ -122,10 +122,18 @@ public class LoginFragment extends Fragment {
         rgstrBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new CreateAccountFragment(), "New").addToBackStack(null).commit();
+                mListener.setCreateType("manager");
+
             }
         });
 
+        rgstrBtn2 = view.findViewById(R.id.rgstrBtn2);
+        rgstrBtn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.setCreateType("client");
+            }
+        });
         forgotBtn = view.findViewById(R.id.forgotBtn);
         forgotBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,5 +158,6 @@ public class LoginFragment extends Fragment {
 
     public interface IListener{
         void setUsername(String username);
+        void setCreateType(String createType);
     }
 }

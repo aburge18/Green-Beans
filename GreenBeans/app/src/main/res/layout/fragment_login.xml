@@ -122,10 +122,21 @@
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:background="@null"
-        android:text="Create Account"
+        android:text="Create Manager Account"
         android:textAllCaps="false"
         android:textColor="@color/appTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/rgstrBtn2"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:background="@null"
+        android:text="Create Client Account"
+        android:textAllCaps="false"
+        android:textColor="@color/appTextColor"
+        app:layout_constraintBottom_toTopOf="@+id/buttonhodler"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button

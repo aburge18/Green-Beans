@@ -1,8 +1,10 @@
 package com.example.greenbeans;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
@@ -75,54 +77,16 @@ public class ClientAddAccountFragment extends Fragment {
         Boolean trustedDevice = true;
 
 
-        String js3 = null;
-
-
-
-        //used this section to automate the process from the moment the app is run but its recommended the user has some
-        // input before authentication and then use refresh tokens to automate future uses
-
-      /*
-        String js = "javascript:document.getElementById('username0').value='" + username + "'; " + //enter username
-                               "document.getElementById('password1').value='" + password + "'; " + //enter password
-                               "document.getElementById('accept').disabled=false;" +               //enable submit button
-                               "document.getElementById('accept').click(); " ;                     //click submit button
-        String js2;
-
-        String[] secQuestions = {"What is your mother"};
-        String[] secAnswers = {"Ann"};
-        String js4 = "javascript:document.getElementById('accept').disabled=false; document.getElementById('accept').click();";
-        HashMap<String, String> data = new HashMap<String, String>();
-        String js3 ="javascript:var question = document.querySelectorAll('p')[2].innerHTML;" +
-                "if(question.includes('"+ secQuestions[0] + "')){ document.getElementById('secretquestion0').value='Ann'; }" +
-                "document.getElementById('accept').disabled=false; document.getElementById('accept').click(); document.getElementById('accept').click();";*/
-
-
-
-
-        if(trustedDevice) {
-
-
-
-
-
-
-
-
+        if(mListener.getAddAccount().matches("TD")) {
 
             String url = "https://auth.tdameritrade.com/auth?response_type=code&redirect_uri=http://localhost&client_id=HJ8DN850FB0BCX4ZCYCZK85SDKLKPLX7@AMER.OAUTHAP";//url user must go to to authenticate and get token
 
-
             webView.loadUrl(url);//loads first webpage
             WebView.setWebContentsDebuggingEnabled(true);//helps inspect element of app on desktop
-            String js0 = "javascript:document.getElementById('accept').disabled=false;"; //login button gets locked for some reason
-            WebSettings webSettings = webView.getSettings();
-            webSettings.setJavaScriptEnabled(true);
-//            webView.evaluateJavascript(js0, new ValueCallback<String>() {
-//                @Override
-//                public void onReceiveValue(String value) {
-//                }
-//            });
+
+
+
+
 
             webView.setWebViewClient(new WebViewClient() {
                 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -133,84 +97,49 @@ public class ClientAddAccountFragment extends Fragment {
 
                     if (code.matches("code")){//if the url contains "code"
                         try {
-                            //decodedToken = URLDecoder.decode(url, "UTF-8");//decode the provided code
 
                             decodedToken = URLDecoder.decode(url.substring(url.indexOf('=')), "UTF-8");//decode the provided code
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
-
                         decodedToken = decodedToken.substring(1);//remove first "=" char from code
+                        Account newAccount = new Account();
+                        newAccount.accountType = "TD";
+                        newAccount.code = decodedToken;
+                        newAccount.getFirstRefreshToken(mListener.getUserID());
+                        while(newAccount.refreshToken == null){
+                            System.out.println("Waiting");
+                        }
+                        Client tempClient = mListener.getCurrentClient();
+                        tempClient.accounts.add(newAccount);
+                        System.out.println("Done Waiting");
+                        mListener.setCurrentClient(tempClient);
+                        //Client client = new Client("Noah","nspen@gmail.com", )
                         System.out.println("DECODDDDDE: " + decodedToken);
                         //new HeavyWork().execute();
 
                     }
                 }
             });
-
-        }/*else if(js3 == "sdfs"){
-
-
-        }else if(!trustedDevice){ //testing manual inital signin (user signs in manually their first use to recieve auth token
-            //and that token can be used to retrieve refresh tokens for future auth purposes)
-            //This should help with not having to store other sites credentials
-            String url = "https://auth.tdameritrade.com/auth?response_type=code&redirect_uri=http://localhost&client_id=HJ8DN850FB0BCX4ZCYCZK85SDKLKPLX7@AMER.OAUTHAP";//url user must go to to authenticate and get token
-
-
-            webView.loadUrl(url);//loads first webpage
-            WebView.setWebContentsDebuggingEnabled(true);//helps inspect element of app on desktop
-            String js0 = "javascript:document.getElementById('accept').disabled=false;"; //login button gets locked for some reason
-            WebSettings webSettings = webView.getSettings();
-            webSettings.setJavaScriptEnabled(true);
-            webView.evaluateJavascript(js0, new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String value) {
-                }
-            });
-
-            webView.setWebViewClient(new WebViewClient() {
-                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-                @Override
-                public void onPageFinished(WebView view4, String url){//once this new page loads
-
-                    String code = url.substring(19, 23); //the url will contain a code after "code="
-
-                    if (code.matches("code")){//if the url contains "code"
-                        try {
-                            decodedToken = URLDecoder.decode(url.substring(url.indexOf('=')), "UTF-8");//decode the provided code
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-
-                        decodedToken = decodedToken.substring(1);//remove first "=" char from code
-
-                        String clientID = "HJ8DN850FB0BCX4ZCYCZK85SDKLKPLX7";
-                        String redirect = "http://localhost";
-                        String js10 = "javascript:document.getElementById('method_content').style.display = 'block'; " +//loads required parameters on specified site
-                                "document.getElementsByName('grant_type')[0].value = 'authorization_code';" +
-                                "document.getElementsByName('access_type')[0].value = 'offline';" +
-                                "document.getElementsByName('code')[0].value = '" + decodedToken +"';" +
-                                "document.getElementsByName('client_id')[0].value = '" + clientID + "';" +
-                                "document.getElementsByName('redirect_uri')[0].value = '" + redirect + "';";
-                        webView.loadUrl("https://developer.tdameritrade.com/authentication/apis/post/token-0");//specify next site
-                        view4.setWebViewClient(new WebViewClient(){
-                            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-                            @Override
-                            public void onPageFinished(WebView view4, String url) {//once the page has loaded
-                                webView.evaluateJavascript(js10, new ValueCallback<String>() {//run js
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                        System.out.println(value + url);
-                                    }
-                                });
-                            }
-
-
-                        });
-                    }
-                }
-            });
-        }*/
+        }
         return view;
+    }
+    @Override
+    public void onAttach(@NonNull Context context){
+        super.onAttach(context);
+        if (context instanceof IListener){
+            mListener = (IListener)context;
+        }else{
+            throw new RuntimeException(context.toString() + " must implement listener");
+        }
+    }
+
+    IListener mListener;
+
+    public interface IListener{
+        Client getCurrentClient();
+        String getUserID();
+        String getAddAccount();
+        void setCurrentClient(Client client);
     }
 }

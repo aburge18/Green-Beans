@@ -10,6 +10,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 public class Client {
 
     String clientUID, name, email, gainsStr;
+
     ArrayList<Account> accounts = new ArrayList<>();
     ArrayList<String> accountIDList = new ArrayList();
     Double buyCost = 0.0;//cash paid for current positions
@@ -30,11 +32,51 @@ public class Client {
         this.clientUID = clientUID;
     }
 
+
     public void setClient(String name, String email, ArrayList<String> accountIDList){
         this.name = name;
         this.email = email;
         this.accountIDList = accountIDList;
     }
+    public void setClient(String UID){
+        clientUID = UID;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("clients").document(clientUID); //get clients document
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        try {
+                            JSONObject clientObj = new JSONObject(document.getData());
+                            String clientName = clientObj.getString("name");
+                            String clientEmail = clientObj.getString("email");
+                            JSONArray accountsArr = clientObj.getJSONArray("accounts");
+                            ArrayList<String> accountsList = new ArrayList<>();
+                            for (int i = 0; i < accountsArr.length(); i++){
+                                accountsList.add(accountsArr.get(i).toString());
+                                System.out.println("ADDED ACCOUNT " + accountsArr.get(i).toString());
+                            }
+                            setClient(clientName, clientEmail, accountsList);
+                            //getGainsStart();
+                            //currentManager.clients.get(clientIndex).getAccounts();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    } else {
+                        System.out.println("No such document");
+                    }
+                } else {
+                    System.out.println("get failed with " + task.getException());
+                }
+            }
+        });
+    }
+
 
 
 
@@ -62,9 +104,10 @@ public class Client {
             }
 
             while (stage != 4) {//while getting all positions from all accounts
-                if(accounts.get(accounts.size() - 1).stage == 2){//if last account has its refreshtoken
-                    if (stage == 2) {
-                        stage = 3;//set next stage
+                if(accounts.size() != 0) {
+                    if (accounts.get(accounts.size() - 1).stage == 2) {//if last account has its refreshtoken
+                        if (stage == 2) {
+                            stage = 3;//set next stage
                             for (int z = 0; z < accounts.size(); z++) {//get all positions in each account
                                 accounts.get(z).addPositions();
                             }
@@ -86,6 +129,7 @@ public class Client {
                                 DecimalFormat df = new DecimalFormat("0.00");
                                 gains = portfolioValue - buyCost;
                                 gainsStr = df.format(gains);//get clients gains for all accounts
+                                }
                             }
                         }
                     }
@@ -97,20 +141,22 @@ public class Client {
     public void getAccounts(){//get accountID's from firebase
         FirebaseFirestore db = FirebaseFirestore.getInstance();//initialize firestore
         Account tempAccount = new Account();
-
+        System.out.println("Getting account");
         for (int i = 0; i < accountIDList.size(); i++) {
+            System.out.println("GETTTING ACCOUNT: " + accountIDList.get(i));
             DocumentReference accountInfo = db.collection("accounts").document(accountIDList.get(i));
             accountInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
+                    System.out.println("GOT TASK: " + task.getResult().toString());
                     DocumentSnapshot document = task.getResult();
                     JSONObject accountInfo = new JSONObject(document.getData());
 
                     try {
                         tempAccount.addAccount(accountInfo.getString("accountType"), accountInfo.getString("refreshToken"), accountInfo.getString("lastRefresh"));
                         accounts.add(tempAccount);
+                        System.out.println("Got account");
                         if (accountIDList.size() == accounts.size()){
                             stage = 2;
                             System.out.println("STAGE 1:");

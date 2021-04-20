@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import com.example.greenbeans.Manager;
 import com.example.greenbeans.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,7 +43,7 @@ public class CreateAccountFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    String userType;
     public CreateAccountFragment() {
         // Required empty public constructor
     }
@@ -80,6 +81,7 @@ public class CreateAccountFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_create_account, container, false);
         rgstrSubmitBtn = view.findViewById(R.id.rgstrSubmitBtn);
+        userType = mListener.getCreateType();
         rgstrSubmitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,26 +132,36 @@ public class CreateAccountFragment extends Fragment {
                             if (task.isSuccessful()) {
                                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                                 Map<String, Object> docData = new HashMap<>();//initialize new user in collection on firebase
-                                Manager manager = new Manager(firstNameTxt, lastNameTxt, mAuth.getUid(), emailTxt);
-                                docData.put("fName", firstNameTxt);
-                                docData.put("lName", lastNameTxt);
-                                docData.put("accountID", mAuth.getUid());
-                               // ArrayList temp = new ArrayList();
-                               // temp.add("");
-                                //docData.put("likedAlbums", temp);
-                                //docData.put("trackHistory", temp);
-                                //db.collection("albumUsers").document(emailTxt.toLowerCase()).set(docData);
+                                if(userType.matches("manager")) {
+                                    Manager manager = new Manager(firstNameTxt, lastNameTxt, mAuth.getUid(), emailTxt);
+                                    docData.put("fName", firstNameTxt);
+                                    docData.put("lName", lastNameTxt);
+                                    docData.put("email", emailTxt);
+                                    ArrayList clients = new ArrayList();
+                                    docData.put("clients", clients);
+                                    db.collection("managers").document(mAuth.getUid()).set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            getFragmentManager().popBackStack();
+                                        }
+                                    });
+                                }else if(userType.matches("client")){
+                                    ArrayList accounts = new ArrayList();
+                                    docData.put("accounts", accounts);
+                                    docData.put("email", emailTxt);
+                                    docData.put("name", firstNameTxt);
+                                    db.collection("clients").document(mAuth.getUid()).set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            getFragmentManager().popBackStack();
+                                        }
+                                    });
+                                }
 
-                                db.collection("managers").document(mAuth.getUid()).set(manager);
-                                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new LoginFragment(), "Login").addToBackStack(null).commit();
-
-
-                            } else {
                             }
                         }
                     });
                 }
-
             }
         });
 
@@ -187,5 +199,6 @@ public class CreateAccountFragment extends Fragment {
     IListener mListener;
     public interface IListener{
         void setUsername(String username);
+        String getCreateType();
     }
 }

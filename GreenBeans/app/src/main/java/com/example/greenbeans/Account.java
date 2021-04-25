@@ -30,9 +30,10 @@ public class Account {
 
     private final okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
 
-    String accountType, refreshToken, authCode, lastRefresh, accountID, accountBuyValStr, accountCurrentValStr, clientID;
+    String accountType, refreshToken, authCode, lastRefresh, accountID, accountBuyValStr, accountCurrentValStr, clientID, keyID, secretKeyID;
     Double accountBuyVal = 0.0;
     Double accountCurrentVal = 0.0;
+    int h;
     int stage = 0;
     String code;
     ArrayList<Position> positions = new ArrayList<Position>();
@@ -44,7 +45,13 @@ public class Account {
         this.refreshToken = refreshToken;
         this.lastRefresh = lastRefresh;
     }
-
+    public void addAccount(String accountType, String keyID, String secretKeyID, int h){
+        this.accountType = accountType;
+        this.keyID = keyID;
+        this.secretKeyID = secretKeyID;
+        this.h = h;
+        stage = 2;
+    }
     public void addAccount(String accountType, String refreshToken, String lastRefresh){
         this.accountType = accountType;
         this.refreshToken = refreshToken;
@@ -155,15 +162,18 @@ public class Account {
        switch (accountType){
            case "TD":
                setTDAuthTokenViaRefresh();
+               System.out.println("Setting td");
                break;
            case "Fidelity":
                setTDAuthTokenViaRefresh();//TODO: Change to fidelity when added
+
                break;
         }
     }
 
     public void setTDAuthTokenViaRefresh(){//get auth token for TD Ameritrade
 
+        System.out.println("SETTING");
         //body for post request
         FormBody formBody = new FormBody.Builder().add("grant_type", "refresh_token").add("refresh_token", refreshToken).add("client_id", "HJ8DN850FB0BCX4ZCYCZK85SDKLKPLX7").add("redirect_uri", "http://localhost").build();
         //create post request with specified header
@@ -171,7 +181,7 @@ public class Account {
 
         String response1Body;//will hold entire response body
 
-        try {
+
             try(Response response1 = client.newCall(request).execute()) {//try to execute post request
                 if (!response1.isSuccessful()) try {//if request isnt successful
                     throw new IOException("Unexpected code " + response1);
@@ -193,7 +203,7 @@ public class Account {
                 System.out.println("Response 1 response:          " + response1);
                 System.out.println("Response 1 cache response:    " + response1.cacheResponse());
                 System.out.println("Response 1 network response:  " + response1.networkResponse());
-            }
+
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }

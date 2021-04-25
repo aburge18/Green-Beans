@@ -42,8 +42,10 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
 
         if (client.gainsStr != null){
             holder.totalGainsTV.setText(client.gainsStr);
+
         }else{
-            new GetGains().execute();//function to update adapter until gains are calculated
+            new GetGains().execute(position);//function to update adapter until gains are calculated
+            System.out.println("no gains");
         }
 
 
@@ -89,7 +91,7 @@ public class ManagerMainViewAdapter extends RecyclerView.Adapter<ManagerMainView
 
             String price = "";
 
-            return price;
+            return String.valueOf(clients.get(ints[0]).stage);
         }
 
         protected void onProgressUpdate(Double... values) {}

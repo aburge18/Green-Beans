@@ -99,13 +99,20 @@ public class Client {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            for (int i = 0; i < accounts.size(); i++){
-                accounts.get(i).setAuthTokenViaRefresh();
-            }
 
+Boolean lock = false;
             while (stage != 4) {//while getting all positions from all accounts
+                System.out.println(stage + "Size: " + accounts.size());
                 if(accounts.size() != 0) {
+                    if(!lock){
+                        lock = true;
+                        for (int i = 0; i < accounts.size(); i++){
+                            accounts.get(i).setAuthTokenViaRefresh();
+                        }
+                    }
+
                     if (accounts.get(accounts.size() - 1).stage == 2) {//if last account has its refreshtoken
+                        System.out.println("ALL TOKENs");
                         if (stage == 2) {
                             stage = 3;//set next stage
                             for (int z = 0; z < accounts.size(); z++) {//get all positions in each account
@@ -140,7 +147,7 @@ public class Client {
 
     public void getAccounts(){//get accountID's from firebase
         FirebaseFirestore db = FirebaseFirestore.getInstance();//initialize firestore
-        Account tempAccount = new Account();
+
         System.out.println("Getting account");
         for (int i = 0; i < accountIDList.size(); i++) {
             System.out.println("GETTTING ACCOUNT: " + accountIDList.get(i));
@@ -152,17 +159,26 @@ public class Client {
                     System.out.println("GOT TASK: " + task.getResult().toString());
                     DocumentSnapshot document = task.getResult();
                     JSONObject accountInfo = new JSONObject(document.getData());
-
+                    Account tempAccount = new Account();
                     try {
                         tempAccount.addAccount(accountInfo.getString("accountType"), accountInfo.getString("refreshToken"), accountInfo.getString("lastRefresh"));
                         accounts.add(tempAccount);
                         System.out.println("Got account");
-                        if (accountIDList.size() == accounts.size()){
-                            stage = 2;
-                            System.out.println("STAGE 1:");
-                        }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
+                    }
+                    try {
+                        tempAccount.addAccount(accountInfo.getString("accountType"), accountInfo.getString("apiKey"), accountInfo.getString("secret"), 3);
+                        accounts.add(tempAccount);
+                        System.out.println("Got account");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (accountIDList.size() == accounts.size()){
+                        stage = 2;
+                        System.out.println("STAGE 1:");
                     }
                 }
             });

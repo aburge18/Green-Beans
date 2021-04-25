@@ -92,7 +92,11 @@ public class ManagerMainFragment extends Fragment {
 
         @Override
         protected String doInBackground(String... strings) {
-            getManager();
+            if(mListener.getUserType().matches("manager")) {
+                getManager();
+            }else{
+                getClient();
+            }
             String str = "sda";
             return str;
         }
@@ -105,6 +109,12 @@ public class ManagerMainFragment extends Fragment {
         }
     }
 
+    public void getClient(){
+        currentManager = new Manager("YEET", "YEET", "YEET", "YEEY");
+        Client tempClient = new Client("fjDFfnpYWwM1ThZvyl6lfim8mBh1");
+        currentManager.addClient(tempClient);
+        getClients();
+    }
     public void getManager(){ //Sets up current manager object
 
         DocumentReference managerdb = db.collection("managers").document(managerID);//get document for current manager
@@ -152,10 +162,12 @@ public class ManagerMainFragment extends Fragment {
                                 String clientEmail = clientObj.getString("email");
                                 JSONArray accountsArr = clientObj.getJSONArray("accounts");
                                 ArrayList<String> accountsList = new ArrayList<>();
+                                System.out.println("CLI: " + clientName + accountsArr.length());
                                 for (int i = 0; i < accountsArr.length(); i++){
                                     accountsList.add(accountsArr.get(i).toString());
                                 }
                                 currentManager.clients.get(clientIndex).setClient(clientName, clientEmail, accountsList);
+                                System.out.println(currentManager.clients.get(0).name);
                                 currentManager.clients.get(clientIndex).getGainsStart();
                                 //currentManager.clients.get(clientIndex).getAccounts();
                             } catch (JSONException e) {
@@ -164,7 +176,7 @@ public class ManagerMainFragment extends Fragment {
                             clientIndex++;
                             adapter.notifyDataSetChanged();
                         } else {
-                            System.out.println("No such document");
+                            System.out.println("No such client document");
                         }
                     } else {
                         System.out.println("get failed with " + task.getException());
@@ -194,5 +206,6 @@ public class ManagerMainFragment extends Fragment {
 
     public interface IListener{
         String getUserID();
+        String getUserType();
     }
 }

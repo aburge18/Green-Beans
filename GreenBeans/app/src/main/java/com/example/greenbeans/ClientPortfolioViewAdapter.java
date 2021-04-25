@@ -40,13 +40,13 @@ public class ClientPortfolioViewAdapter extends RecyclerView.Adapter<ClientPortf
             case "TD":
                 accountType = "TD Ameritrade";
                 break;
-            case "Fidelity":
+            case "Alpaca":
                 accountType = account.accountType;
                 break;
         }
 
 
-        holder.accountType.setText(accountType);
+        holder.accountType.setText(accountType + account.accountID);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

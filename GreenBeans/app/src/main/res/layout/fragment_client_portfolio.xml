@@ -40,6 +40,15 @@
         android:text="Add Account"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+    <Button
+        android:id="@+id/addAccountBtn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Add Alpaca Account"
+        app:layout_constraintBottom_toTopOf="@+id/addAccountBtn"
+        app:layout_constraintEnd_toEndOf="@+id/addAccountBtn"
+        app:layout_constraintStart_toStartOf="@+id/addAccountBtn" />
 
     <Button
         android:id="@+id/addManagerBtn"

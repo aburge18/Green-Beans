@@ -78,6 +78,13 @@ public class ClientPortfolioFragment extends Fragment {
 
             }
         });
+        Button addAlpacaAccount = view.findViewById(R.id.addAccountBtn2);
+        addAlpacaAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new AddAlpacaAccountFragment(), "Add Alpaca Account").addToBackStack(null).commit();
+            }
+        });
         Button addManager = view.findViewById(R.id.addManagerBtn);
         if(mListener.getUserType().matches("manager")){
             addManager.setVisibility(View.INVISIBLE);

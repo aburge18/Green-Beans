@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements ManagerMainFragment.IListener, ManagerMainViewAdapter.IListener, ClientPortfolioFragment.IListener, AccountPositionsFragment.IListener, AccountPositionsViewAdapter.IListener, ClientPortfolioViewAdapter.IListener, BuyPositionFragment.IListener, ConfirmBuyFragment.IListener, ClientAddAccountFragment.IListener{
+public class MainActivity extends AppCompatActivity implements ManagerMainFragment.IListener, ManagerMainViewAdapter.IListener, ClientPortfolioFragment.IListener, AccountPositionsFragment.IListener, AccountPositionsViewAdapter.IListener, ClientPortfolioViewAdapter.IListener, BuyPositionFragment.IListener, ConfirmBuyFragment.IListener, ClientAddAccountFragment.IListener, AddAlpacaAccountFragment.IListener{
     private FirebaseAuth mAuth;
     String userID;
     Client currentClient;
@@ -63,8 +63,8 @@ public class MainActivity extends AppCompatActivity implements ManagerMainFragme
     }
     public void setCurrentClient(){
         currentClient = new Client(userID);
-        currentClient.setClient(userID);
-        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ClientPortfolioFragment(), "MainClient").addToBackStack(null).commit();
+        //currentClient.setClient(userID);
+        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ManagerMainFragment(), "MainClient").addToBackStack(null).commit();
     }
 
     public Client getCurrentClient(){

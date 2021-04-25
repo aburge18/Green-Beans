@@ -106,10 +106,10 @@ public class AccountPositionsViewAdapter extends RecyclerView.Adapter<AccountPos
             currentPosition = positions.get(ints[0]);
             currentPosition.setCurrentPrice();
             int time = currentPosition.countDownTime;
-            String price = currentPosition.currentPrice;
-ArrayList<Integer> list = new ArrayList<>();
-list.add(time);
-list.add(position);
+
+            ArrayList<Integer> list = new ArrayList<>();
+            list.add(time);
+            list.add(position);
             return  list;
         }
 
@@ -119,7 +119,7 @@ list.add(position);
             super.onPostExecute(list);
 
             System.out.println("Price:  " + list.get(0));
-            if (list.get(0) == 0){
+            if (list.get(0) != 0){
                 notifyDataSetChanged();
             }else{
                 new SetPrice().execute(list.get(1));

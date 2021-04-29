@@ -42,12 +42,16 @@ public class ClientPortfolioViewAdapter extends RecyclerView.Adapter<ClientPortf
                 break;
             case "Alpaca":
                 accountType = account.accountType;
+                System.out.println("GAINS BABY  " + mListener.getCurrentClient().gainsStr + account.accountCurrentValStr);
                 break;
         }
+String gains;
+        Double gainsVal = account.accountCurrentVal - account.accountBuyVal;
+        gains = String.format("%.2f", gainsVal);
 
-
-        holder.accountType.setText(accountType + account.accountID);
-
+        holder.accountType.setText(accountType);
+        holder.accountVal.setText("$" + account.accountCurrentValStr);
+        holder.accountProfit.setText("$" + gains);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,16 +70,19 @@ public class ClientPortfolioViewAdapter extends RecyclerView.Adapter<ClientPortf
     }
 
     public static class ProfileViewHolder extends RecyclerView.ViewHolder{
-        TextView accountType;
+        TextView accountType, accountVal, accountProfit;
 
         public ProfileViewHolder(@NonNull View itemView) {
             super(itemView);
             accountType = itemView.findViewById(R.id.accountTypeTV);
+            accountProfit = itemView.findViewById(R.id.accountProfitLossTV);
+            accountVal = itemView.findViewById(R.id.accountValTV);
         }
     }
 
     public interface IListener{
         void setCurrentAccount(Account account);
+        Client getCurrentClient();
     }
 
 }

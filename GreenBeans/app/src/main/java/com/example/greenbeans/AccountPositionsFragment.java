@@ -17,6 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -66,7 +69,8 @@ public class AccountPositionsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_account_positions, container, false);
 
         currentAccount =  mListener.getCurrentAccount();
-        currentAccount.positions = new ArrayList<>();
+
+
         System.out.println("current account: " + currentAccount.clientID);
         adapter = new AccountPositionsViewAdapter(currentAccount.positions, getContext());
         recyclerView = view.findViewById(R.id.positionRecView);
@@ -75,7 +79,6 @@ public class AccountPositionsFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(adapter);
 
-        new SetAuthToken().execute();
 
         Button addPositionsBtn = view.findViewById(R.id.addPositionBtn);
         addPositionsBtn.setOnClickListener(new View.OnClickListener() {
@@ -122,7 +125,11 @@ public class AccountPositionsFragment extends Fragment {
         @Override
         public Position doInBackground(Integer... values) {
 
-            currentAccount.addPositions();//searched td database and adds all position to linked account obj
+            try {
+                currentAccount.addPositions();//searched td database and adds all position to linked account obj
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
             return new Position();//send list of nums to postExecute
         }
 

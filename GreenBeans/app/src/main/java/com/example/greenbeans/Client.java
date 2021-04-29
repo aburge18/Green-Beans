@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -100,7 +101,7 @@ public class Client {
                 e.printStackTrace();
             }
 
-Boolean lock = false;
+            Boolean lock = false;
             while (stage != 4) {//while getting all positions from all accounts
                 System.out.println(stage + "Size: " + accounts.size());
                 if(accounts.size() != 0) {
@@ -116,7 +117,11 @@ Boolean lock = false;
                         if (stage == 2) {
                             stage = 3;//set next stage
                             for (int z = 0; z < accounts.size(); z++) {//get all positions in each account
-                                accounts.get(z).addPositions();
+                                try {
+                                    accounts.get(z).addPositions();
+                                } catch (IOException | JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
 
                             if (accounts.get(accounts.size() - 1).accountCurrentVal != null) {//if account has added all positions

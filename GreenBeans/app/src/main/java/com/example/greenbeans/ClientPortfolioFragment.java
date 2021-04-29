@@ -62,7 +62,9 @@ public class ClientPortfolioFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_client_portfolio, container, false);
         recyclerView = view.findViewById(R.id.clientRecView);
-        currentClient = mListener.getCurrentClient();
+
+            currentClient = mListener.getCurrentClient();
+
         if(currentClient.accounts.size() == 0){
             new GetAccounts().execute();
             System.out.println("Executing get account");

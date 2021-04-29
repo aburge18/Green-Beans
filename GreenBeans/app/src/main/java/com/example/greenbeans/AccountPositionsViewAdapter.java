@@ -58,7 +58,7 @@ public class AccountPositionsViewAdapter extends RecyclerView.Adapter<AccountPos
         holder.sellBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // mListener.setPositionToSell(currPosition);
+                mListener.setPositionToSell(currPosition);
             }
         });
     }
@@ -91,7 +91,7 @@ public class AccountPositionsViewAdapter extends RecyclerView.Adapter<AccountPos
 
     public interface IListener{
         void setPositionToBuy(Position positionToBuy);
-        //void setPositionToSell(Position positionToSell)
+        void setPositionToSell(Position positionToSell);
     }
 
     public class SetPrice extends AsyncTask<Integer, Double, ArrayList<Integer>> implements Runnable {//retrieves current price from td ameritrade

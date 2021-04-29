@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DecimalFormat;
 
@@ -100,8 +101,8 @@ public class SellPositionFragment extends Fragment {
                     currentPosition.symbol = searchETV.getText().toString().toUpperCase();
                     new GetPositionPrice().execute();//get the positions current price
                     positionSymbol = searchETV.getText().toString();
-                    buySymobolTV.setText(positionSymbol);
-                    buyPositionTV.setText(positionSymbol);
+                    //buySymobolTV.setText(positionSymbol);
+                    //buyPositionTV.setText(positionSymbol);
                 }
             }
         });
@@ -113,7 +114,7 @@ public class SellPositionFragment extends Fragment {
                 if (quantity > 0){
                     Position tempPosition = new Position();
                     tempPosition.symbol = buySymobolTV.getText().toString();
-                    mListener.confirmBuy(quantity, tempPosition);
+                    mListener.confirmSell(quantity, tempPosition);
                 }
             }
         });
@@ -136,7 +137,8 @@ public class SellPositionFragment extends Fragment {
                 if (!quatityETV.getText().toString().matches("")) {
                     DecimalFormat df = new DecimalFormat("0.00");
                     quantity = Double.valueOf(quatityETV.getText().toString());
-                    buyAmountTV.setText(quantity.toString());
+                    String quantStr = String.format("%.0f", quantity);
+                    buyAmountTV.setText(quantStr);
                     Double total = quantity * priceVal;
                     buyTotalTV.setText(df.format(total));
                 }
@@ -159,16 +161,21 @@ public class SellPositionFragment extends Fragment {
             super.onPostExecute(price);
 
             System.out.println("Price:  " + price);
-            priceVal = Double.valueOf(price);
-            if(getActivity() == null) {
-                return;
-            }
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    buyPriceTV.setText(price);
+            if(price != null) {
+                priceVal = Double.valueOf(price);
+                if (getActivity() == null) {
+                    return;
                 }
-            });
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        buyPriceTV.setText(price);
+                    }
+                });
+            }else{
+                Toast toast1 = Toast.makeText(getActivity().getApplicationContext(), "Please Enter A Valid Position", Toast.LENGTH_SHORT);
+                toast1.show();
+            }
         }
 
         @Override
@@ -189,5 +196,6 @@ public class SellPositionFragment extends Fragment {
     public interface IListener{
         Position getPositionToBuy();
         void confirmBuy(Double quantity, Position position);
+        void confirmSell(Double quantity, Position position);
     }
 }

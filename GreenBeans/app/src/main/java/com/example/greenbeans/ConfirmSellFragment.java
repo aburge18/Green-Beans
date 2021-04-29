@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ConfirmSellFragment extends Fragment {
@@ -71,7 +73,7 @@ public class ConfirmSellFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 try {
-                    new BuyPosition().execute();//start buy order
+                    new SellPosition().execute();//start buy order
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -115,9 +117,9 @@ public class ConfirmSellFragment extends Fragment {
         @Override
         public void run() {}
     }
-    public class BuyPosition extends AsyncTask<Integer, Double, Position> implements Runnable {//buys current quantity of current position
+    public class SellPosition extends AsyncTask<Integer, Double, Position> implements Runnable {//buys current quantity of current position
 
-        public BuyPosition() throws JSONException {
+        public SellPosition() throws JSONException {
         }
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -126,7 +128,14 @@ public class ConfirmSellFragment extends Fragment {
 
             Account account = mListener.getCurrentAccount();
             try {
-                account.buyPosition(quantity, tempPosition);
+                account.sellPosition(quantity, tempPosition);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            try {
+                mListener.getCurrentAccount().addPositions();
+            } catch (IOException e) {
+                e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -139,7 +148,14 @@ public class ConfirmSellFragment extends Fragment {
 
         protected void onPostExecute(Position tempPosition) {//when doInBackground is done executing
             super.onPostExecute(tempPosition);
-            System.out.println("ADDed: " + tempPosition.symbol);
+
+
+
+                System.out.println("ADDed: " + tempPosition.symbol);
+
+            getFragmentManager().popBackStack();
+            getFragmentManager().popBackStack();
+
         }
 
         @Override

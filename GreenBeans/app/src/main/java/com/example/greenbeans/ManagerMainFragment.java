@@ -111,7 +111,7 @@ public class ManagerMainFragment extends Fragment {
 
     public void getClient(){
         currentManager = new Manager("YEET", "YEET", "YEET", "YEEY");
-        Client tempClient = new Client("fjDFfnpYWwM1ThZvyl6lfim8mBh1");
+        Client tempClient = new Client(mListener.getUserID());
         currentManager.addClient(tempClient);
         getClients();
     }

@@ -13,7 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ClientActivity"></activity>
         <activity android:name=".MainActivity" />
         <activity android:name=".authentication.AuthActivity">
             <intent-filter>

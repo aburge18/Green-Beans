@@ -40,6 +40,7 @@ public class Account {
 
     public Account(){}
 
+
     public Account(String accountType, String refreshToken, String lastRefresh){
         this.accountType = accountType;
         this.refreshToken = refreshToken;
@@ -64,18 +65,13 @@ public class Account {
             case "TD":
                 getFirstTDRefreshTokenStart();
                 break;
-            case "Fidelity":
-                getFirstTDRefreshTokenStart();//TODO: change to fidelty
-                break;
         }
     }
-
 
     public void getFirstTDRefreshTokenStart(){
         GetFirstTDRefreshTokenRunnable runnable = new GetFirstTDRefreshTokenRunnable();
         new Thread(runnable).start();
     }
-
 
     class GetFirstTDRefreshTokenRunnable implements Runnable{
 
@@ -117,7 +113,6 @@ public class Account {
                     data.put("refreshToken", refreshToken);
 
 
-
                     DocumentReference accounts = db.collection("accounts").document();
                     accounts.set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -153,20 +148,11 @@ public class Account {
 
 
 
-
-
-
-
-
     public void setAuthTokenViaRefresh(){//choose which way to get auth token based on account type
        switch (accountType){
            case "TD":
                setTDAuthTokenViaRefresh();
                System.out.println("Setting td");
-               break;
-           case "Fidelity":
-               setTDAuthTokenViaRefresh();//TODO: Change to fidelity when added
-
                break;
         }
     }
@@ -210,16 +196,53 @@ public class Account {
         System.out.println("REALLY GOT AUTH CODE: " + authCode);
     }
 
-    public void addPositions(){//choose to add position based off account type
-
-    switch (accountType){
-        case "TD":
-            addTDPositions();
-            break;
-        case "Fidelity":
-            addTDPositions();//TODO: change to fidelty
-            break;
+    public void addPositions() throws IOException, JSONException {//choose to add position based off account type
+        positions = new ArrayList<>();
+        switch (accountType){
+            case "TD":
+                addTDPositions();
+                break;
+            case "Alpaca":
+                addAlpacaPositions();
+                break;
+        }
     }
+
+    public void addAlpacaPositions() throws IOException, JSONException {
+        final Request request = new Request.Builder().url("https://api.alpaca.markets/v2/positions").get().addHeader("APCA-API-KEY-ID", keyID).addHeader("APCA-API-SECRET-KEY", secretKeyID).build();
+
+        String response1Body;//will hold entire response body
+
+
+        Response response1 = client.newCall(request).execute();//try to execute post request
+        if (!response1.isSuccessful()) try {//if request isnt successful
+            throw new IOException("Unexpected code " + response1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        response1Body = response1.body().string();
+
+        JSONArray responseArray = new JSONArray(response1Body);
+        for(int i = 0; i < responseArray.length(); i++) {
+            JSONObject responseObj = responseArray.getJSONObject(i);
+            String symbol = responseObj.getString("symbol");
+            String qty = responseObj.getString("qty");
+            String avgPrice = responseObj.getString("avg_entry_price");
+            Double price = Double.valueOf(avgPrice);
+            Double quantity = Double.valueOf(qty);
+            accountBuyVal += (price * quantity);
+            Position tempPosition = new Position(symbol, qty, String.format("%.2f", price));
+            positions.add(tempPosition);
+        }
+        getAccountValue();
+        System.out.println("Auth Code: " + authCode);
+        System.out.println(response1Body);
+        System.out.println("Responsexx 1 response:          " + response1);
+        System.out.println("Responsexx 1 cache response:    " + response1.cacheResponse());
+        System.out.println("Responsexx 1 network response:  " + response1.networkResponse());
+
     }
 
     public void addTDPositions(){//add a TD Ameritrade position
@@ -253,7 +276,7 @@ public class Account {
                     System.out.println("Symbol: " + symbol);
 
                     Double avgPrice = Double.valueOf(positionObj.getString("averagePrice"));
-Double quantity = Double.valueOf(positionObj.getString("longQuantity"));
+                    Double quantity = Double.valueOf(positionObj.getString("longQuantity"));
                     accountBuyVal += (avgPrice * quantity);
                     tempPosition = new Position(symbol, positionObj.getString("longQuantity"), String.format("%.2f", avgPrice));
                     positions.add(tempPosition);
@@ -268,14 +291,43 @@ Double quantity = Double.valueOf(positionObj.getString("longQuantity"));
             e.printStackTrace();
         }
     }
+
+
     public void buyPosition(String quantity, Position positionToBuy) throws JSONException {
         switch (accountType) {
             case "TD":
                 buyTDPosition(quantity, positionToBuy);
                 break;
-            case "Fidelity":
-                buyTDPosition(quantity, positionToBuy);//TODO: change to fidelty
+            case "Alpaca":
+                buyAlpacaPosition(quantity, positionToBuy);
                 break;
+        }
+    }
+
+    public void buyAlpacaPosition(String quantity, Position positionToBuy) throws JSONException {
+        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, createAlpacaBuyOrder(quantity, positionToBuy));
+        final Request request = new Request.Builder().url("https://api.alpaca.markets/v2/orders").post(body).addHeader("APCA-API-KEY-ID", keyID).addHeader("APCA-API-SECRET-KEY", secretKeyID).build();
+
+        String response1Body;
+        try {
+            try(Response response1 = client.newCall(request).execute()) {
+                if (!response1.isSuccessful()) try {
+                    throw new IOException("Unexpected code " + response1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Position tempPosition = new Position();
+                response1Body = response1.body().string();
+                System.out.println("Response 2: " + response1Body);
+
+                System.out.println("Response 1 response:          " + response1);
+                System.out.println("Response 1 cache response:    " + response1.cacheResponse());
+                System.out.println("Response 1 network response:  " + response1.networkResponse());
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     public void buyTDPosition(String quantity, Position positionToBuy) throws JSONException {
@@ -334,18 +386,88 @@ Double quantity = Double.valueOf(positionObj.getString("longQuantity"));
         return order;
     }
 
+    public String createAlpacaBuyOrder(String quantityVal, Position positionToBuy){
+
+        String quantity;
+        quantity = quantityVal;
+        Position tempPosition;
+        tempPosition = positionToBuy;
+        String symbol;
+        symbol = tempPosition.symbol;
+        Double quant = Double.valueOf(quantity);
+        String q = String.format("%.0f", quant);
+        String order = "{\n" +
+                "  \"symbol\": \"" + symbol + "\",\n" +
+                "  \"qty\": "  + q + ",\n" +
+                "  \"side\": \"buy\",\n" +
+                "  \"type\": \"market\",\n" +
+                "  \"time_in_force\": \"day\"\n" +
+                "}";
+        System.out.println("ORDER___ " + order);
+        System.out.println("kEY" + keyID + "    " + secretKeyID);
+        return order;
+    }
 
     public void sellPosition(String quantity, Position positionToBuy) throws JSONException {
         switch (accountType) {
             case "TD":
                 sellTDPosition(quantity, positionToBuy);
                 break;
-            case "Fidelity":
-                sellTDPosition(quantity, positionToBuy);//TODO: change to fidelty
+            case "Alpaca":
+                sellAlpacaPosition(quantity, positionToBuy);
                 break;
         }
     }
 
+    public void sellAlpacaPosition(String quantity, Position positionToBuy) throws JSONException {
+        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, createAlpacaSellOrder(quantity, positionToBuy));
+        final Request request = new Request.Builder().url("https://api.alpaca.markets/v2/orders").post(body).addHeader("APCA-API-KEY-ID", keyID).addHeader("APCA-API-SECRET-KEY", secretKeyID).build();
+
+        String response1Body;
+        try {
+            try(Response response1 = client.newCall(request).execute()) {
+                if (!response1.isSuccessful()) try {
+                    throw new IOException("Unexpected code " + response1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Position tempPosition = new Position();
+                response1Body = response1.body().string();
+                System.out.println("Response 2: " + response1Body);
+
+                System.out.println("Response 1 response:          " + response1);
+                System.out.println("Response 1 cache response:    " + response1.cacheResponse());
+                System.out.println("Response 1 network response:  " + response1.networkResponse());
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public String createAlpacaSellOrder(String quantityVal, Position positionToBuy){
+
+        String quantity;
+        quantity = quantityVal;
+        Position tempPosition;
+        tempPosition = positionToBuy;
+        String symbol;
+        symbol = tempPosition.symbol;
+        Double quant = Double.valueOf(quantity);
+        String q = String.format("%.0f", quant);
+        String order = "{\n" +
+                "  \"symbol\": \"" + symbol + "\",\n" +
+                "  \"qty\": "  + q + ",\n" +
+                "  \"side\": \"sell\",\n" +
+                "  \"type\": \"market\",\n" +
+                "  \"time_in_force\": \"day\"\n" +
+                "}";
+        System.out.println("ORDER___ " + order);
+        System.out.println("kEY" + keyID + "    " + secretKeyID);
+        return order;
+    }
     public void sellTDPosition(String quantity, Position positionToBuy) throws JSONException {
         ArrayList<Double> avgs = new ArrayList<Double>();//temp list to send to postExecute
         final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -414,8 +536,10 @@ Double quantity = Double.valueOf(positionObj.getString("longQuantity"));
             }
             for (int i = 0; i < positions.size(); i++){
                accountCurrentVal += (positions.get(i).currentPriceVal * Double.valueOf(positions.get(i).quantity));
+
                 System.out.println("ACCOUNT VALUE: " + accountCurrentVal + accountType);
             }
+            accountCurrentValStr = String.format("%.2f", accountCurrentVal);
             stage = 5;
 
         }

@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements ManagerMainFragment.IListener, ManagerMainViewAdapter.IListener, ClientPortfolioFragment.IListener, AccountPositionsFragment.IListener, AccountPositionsViewAdapter.IListener, ClientPortfolioViewAdapter.IListener, BuyPositionFragment.IListener, ConfirmBuyFragment.IListener, ClientAddAccountFragment.IListener, AddAlpacaAccountFragment.IListener{
+public class MainActivity extends AppCompatActivity implements ManagerMainFragment.IListener, ManagerMainViewAdapter.IListener, ClientPortfolioFragment.IListener, AccountPositionsFragment.IListener, AccountPositionsViewAdapter.IListener, ClientPortfolioViewAdapter.IListener, BuyPositionFragment.IListener, SellPositionFragment.IListener , ConfirmBuyFragment.IListener, ConfirmSellFragment.IListener,  ClientAddAccountFragment.IListener, AddAlpacaAccountFragment.IListener{
     private FirebaseAuth mAuth;
     String userID;
     Client currentClient;
@@ -110,6 +110,13 @@ accounts.add("3F0hbsDAB0k6BxahpZJo");
         this.quantity = quantity;
         this.positionToBuy = positionToBuy;
         getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ConfirmBuyFragment(), "ConfirmBuy").addToBackStack(null).commit();
+    }
+    @Override
+    public void confirmSell(Double quantity, Position positionToBuy) {
+
+        this.quantity = quantity;
+        this.positionToBuy = positionToBuy;
+        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, new ConfirmSellFragment(), "ConfirmSell").addToBackStack(null).commit();
     }
 
     public String getConfirmBuyQuantity(){

@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -149,7 +150,8 @@ public class BuyPositionFragment extends Fragment {
                 if (!quatityETV.getText().toString().matches("")) {
                     DecimalFormat df = new DecimalFormat("0.00");
                     quantity = Double.valueOf(quatityETV.getText().toString());
-                    buyAmountTV.setText(quantity.toString());
+                    String quantStr = String.format("%.0f", quantity);
+                    buyAmountTV.setText(quantStr);
                     Double total = quantity * priceVal;
                     buyTotalTV.setText(df.format(total));
                 }
@@ -173,16 +175,22 @@ public class BuyPositionFragment extends Fragment {
             super.onPostExecute(price);
 
             System.out.println("Price:  " + price);
-            priceVal = Double.valueOf(price);
-            if(getActivity() == null) {
-                return;
-            }
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    buyPriceTV.setText(price);
+
+            if(price != null) {
+                priceVal = Double.valueOf(price);
+                if (getActivity() == null) {
+                    return;
                 }
-            });
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        buyPriceTV.setText(price);
+                    }
+                });
+            }else{
+                Toast toast1 = Toast.makeText(getActivity().getApplicationContext(), "Please Enter A Valid Position", Toast.LENGTH_SHORT);
+                toast1.show();
+            }
         }
 
         @Override

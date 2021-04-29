@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ConfirmBuyFragment extends Fragment {
@@ -131,6 +132,13 @@ public class ConfirmBuyFragment extends Fragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            try {
+                mListener.getCurrentAccount().addPositions();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             return new Position();//send list of nums to postExecute
         }
 
@@ -140,7 +148,11 @@ public class ConfirmBuyFragment extends Fragment {
 
         protected void onPostExecute(Position tempPosition) {//when doInBackground is done executing
             super.onPostExecute(tempPosition);
+
+
             System.out.println("ADDed: " + tempPosition.symbol);
+            getFragmentManager().popBackStack();
+            getFragmentManager().popBackStack();
         }
 
         @Override

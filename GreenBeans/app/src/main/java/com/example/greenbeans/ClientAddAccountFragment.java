@@ -85,7 +85,14 @@ public class ClientAddAccountFragment extends Fragment {
             WebView.setWebContentsDebuggingEnabled(true);//helps inspect element of app on desktop
 
 
-
+            String js0 = "javascript:document.getElementById('accept').disabled=false;"; //login button gets locked for some reason
+            WebSettings webSettings = webView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+            webView.evaluateJavascript(js0, new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                }
+            });
 
 
             webView.setWebViewClient(new WebViewClient() {

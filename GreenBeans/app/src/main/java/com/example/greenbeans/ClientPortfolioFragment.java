@@ -91,6 +91,7 @@ public class ClientPortfolioFragment extends Fragment {
         if(mListener.getUserType().matches("manager")){
             addManager.setVisibility(View.INVISIBLE);
             addAccout.setVisibility(View.INVISIBLE);
+            addAlpacaAccount.setVisibility(View.INVISIBLE);
         }
         addManager.setOnClickListener(new View.OnClickListener() {
             @Override

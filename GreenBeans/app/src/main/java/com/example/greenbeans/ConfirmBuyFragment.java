@@ -132,13 +132,8 @@ public class ConfirmBuyFragment extends Fragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            try {
-                mListener.getCurrentAccount().addPositions();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            mListener.getPositionToBuy().quantityInt += (int)Double.parseDouble(quantity);
+
             return new Position();//send list of nums to postExecute
         }
 

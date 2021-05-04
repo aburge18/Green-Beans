@@ -129,16 +129,12 @@ public class ConfirmSellFragment extends Fragment {
             Account account = mListener.getCurrentAccount();
             try {
                 account.sellPosition(quantity, tempPosition);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            try {
-                mListener.getCurrentAccount().addPositions();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            mListener.getPositionToBuy().quantityInt -= (int)Double.parseDouble(quantity);
+
             return new Position();//send list of nums to postExecute
         }
 

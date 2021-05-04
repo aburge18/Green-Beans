@@ -14,6 +14,9 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -81,10 +84,13 @@ public class SellPositionFragment extends Fragment {
         TextView buySymobolTV = view.findViewById(R.id.buySymbolTV);
         TextView buyAmountTV = view.findViewById(R.id.buyAmountTV);
         TextView buyPositionTV = view.findViewById(R.id.buyPositionTV);
-        EditText searchETV = view.findViewById(R.id.buySearchETV);
+
         TextView buyTotalTV = view.findViewById(R.id.buyTotalTV);
         buyPriceTV = view.findViewById(R.id.buyPriceTV);
         currentPosition = mListener.getPositionToBuy();
+
+
+
 
         quantity = 0.0;
         if(currentPosition != null){//if position to buy was already specified
@@ -92,20 +98,6 @@ public class SellPositionFragment extends Fragment {
             positionSymbol = currentPosition.symbol;
         }
 
-        searchETV.setOnFocusChangeListener(new View.OnFocusChangeListener() {//if user clicks or unclicks search feature
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(!searchETV.getText().toString().matches("")) {//search bar is not empty
-
-                    currentPosition = new Position();//create new position with specified symbol
-                    currentPosition.symbol = searchETV.getText().toString().toUpperCase();
-                    new GetPositionPrice().execute();//get the positions current price
-                    positionSymbol = searchETV.getText().toString();
-                    //buySymobolTV.setText(positionSymbol);
-                    //buyPositionTV.setText(positionSymbol);
-                }
-            }
-        });
 
         Button buyPositionButton = view.findViewById(R.id.buyPositionBtn);
         buyPositionButton.setOnClickListener(new View.OnClickListener() {

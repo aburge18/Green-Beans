@@ -78,8 +78,11 @@ public class ManagerMainFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_manager_main, container, false);
 
         currentManager = new Manager();
+
         clientIndex = 0;
+
         recView = view.findViewById(R.id.recView);
+
         managerID = mListener.getUserID();
 
         new getManagerAccount().execute();//gets current manager account and retrieves their client accounts
@@ -113,7 +116,8 @@ public class ManagerMainFragment extends Fragment {
         currentManager = new Manager("YEET", "YEET", "YEET", "YEEY");
         Client tempClient = new Client(mListener.getUserID());
         currentManager.addClient(tempClient);
-        getClients();
+        getClients runnable = new getClients();
+        new Thread(runnable).start();
     }
     public void getManager(){ //Sets up current manager object
 
@@ -135,8 +139,9 @@ public class ManagerMainFragment extends Fragment {
                         currentManager.addClient(tempClient);
 
                     }
-
-                    getClients();//get all client accounts
+                    getClients runnable = new getClients();
+                    new Thread(runnable).start();
+                    //get all client accounts
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -144,50 +149,59 @@ public class ManagerMainFragment extends Fragment {
         });
     }
 
-    public void getClients(){//Responsible for retrieving all Clients on manager's client list
+    class  getClients implements Runnable{
+        @Override
+        public void run() {
+            for (int i = 0; i < currentManager.clients.size(); i++) {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference docRef = db.collection("clients").document(currentManager.clients.get(i).clientUID); //get clients document
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
 
-        for (int i = 0; i < currentManager.clients.size(); i++) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            DocumentReference docRef = db.collection("clients").document(currentManager.clients.get(i).clientUID); //get clients document
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-
-                            try {
-                                JSONObject clientObj = new JSONObject(document.getData());
-                                String clientName = clientObj.getString("name");
-                                String clientEmail = clientObj.getString("email");
-                                JSONArray accountsArr = clientObj.getJSONArray("accounts");
-                                ArrayList<String> accountsList = new ArrayList<>();
-                                System.out.println("CLI: " + clientName + accountsArr.length());
-                                for (int i = 0; i < accountsArr.length(); i++){
-                                    accountsList.add(accountsArr.get(i).toString());
+                                try {
+                                    JSONObject clientObj = new JSONObject(document.getData());
+                                    String clientName = clientObj.getString("name");
+                                    String clientEmail = clientObj.getString("email");
+                                    JSONArray accountsArr = clientObj.getJSONArray("accounts");
+                                    ArrayList<String> accountsList = new ArrayList<>();
+                                    System.out.println("CLI: " + clientName + accountsArr.length());
+                                    for (int i = 0; i < accountsArr.length(); i++){
+                                        accountsList.add(accountsArr.get(i).toString());
+                                    }
+                                    currentManager.clients.get(clientIndex).setClient(clientName, clientEmail, accountsList);
+                                    System.out.println(currentManager.clients.get(0).name);
+                                    currentManager.clients.get(clientIndex).getGainsStart();
+                                    //currentManager.clients.get(clientIndex).getAccounts();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                                currentManager.clients.get(clientIndex).setClient(clientName, clientEmail, accountsList);
-                                System.out.println(currentManager.clients.get(0).name);
-                                currentManager.clients.get(clientIndex).getGainsStart();
-                                //currentManager.clients.get(clientIndex).getAccounts();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                                clientIndex++;
+                               // adapter.notifyDataSetChanged();
+                            } else {
+                                System.out.println("No such client document");
                             }
-                            clientIndex++;
-                            adapter.notifyDataSetChanged();
                         } else {
-                            System.out.println("No such client document");
+                            System.out.println("get failed with " + task.getException());
                         }
-                    } else {
-                        System.out.println("get failed with " + task.getException());
+
+                        adapter = new ManagerMainViewAdapter(currentManager.clients, getContext());
+                        layoutManager = new LinearLayoutManager(getContext());
+
+                        recView.setLayoutManager(layoutManager);
+                        recView.setAdapter(adapter);
                     }
-                }
-            });
-        }
-        adapter = new ManagerMainViewAdapter(currentManager.clients, getContext());
-        layoutManager = new LinearLayoutManager(getContext());
-        recView.setLayoutManager(layoutManager);
-        recView.setAdapter(adapter);
+
+                });
+            }
+
+
+
+        }//Responsible for retrieving all Clients on manager's client list
+
 
     }
 

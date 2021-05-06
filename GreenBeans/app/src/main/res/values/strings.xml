@@ -9,9 +9,9 @@
 
     <!-- Application -->
     <string name="email_field_text">E-mail</string>
-    <string name="verify_email_field_text">Verify E-mail</string>
+    <string name="verify_email_field_text">Confirm E-mail</string>
     <string name="password_field_text">Password</string>
-    <string name="verify_password_field_text">Verify Password</string>
+    <string name="verify_password_field_text">Confirm Password</string>
     <string name="submit_button">Submit</string>
 
 
